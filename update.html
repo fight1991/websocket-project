@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- <link rel="stylesheet" href="./static/base.css"> -->
+  <link rel="stylesheet" href="./static/css/layui.css">
+  <link rel="stylesheet" href="./static/update.css">
+</head>
+<body>
+  <div class="layui-layout layui-layout-admin">
+    <div class="layui-header header header-demo" spring="">
+      <div class="layui-main">
+        <a class="logo" href="/">
+          <img src="img/字.png" alt="layui">
+        </a>
+        <ul class="layui-nav">
+          <li class="layui-nav-item">
+            <a href="setnet.html">配网</a>
+          </li>
+          <li class="layui-nav-item layui-this"><a href="">升级</a></li>
+          <li class="layui-nav-item"><a href="https://www.fox-ess.com/" target="_blank">FoxESS官网首页</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="update"><h1>升级</h1></div>
+    <form class="layui-form" action="">
+      <div class="layui-form-item">
+        <label class="layui-form-label">SN</label>
+        <div class="layui-text">
+          <span>132424</span>
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">软件版本</label>
+        <div class="layui-text">
+          <span>12.0.1</span>
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">硬件版本</label>
+        <div class="layui-text">
+          <span>12.0.0</span>
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <button type="button" class="layui-btn" id="sfile">选择文件</button>
+        <div class="layui-inline layui-word-aux">只能上传txt/hex文件</div>
+      </div>
+      <div class="layui-form-item">
+        <div class="layui-progress layui-progress-big" lay-showPercent="yes">
+          <div class="layui-progress-bar" lay-percent="50%"></div>
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formSet">升级</button>
+          <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- <script src="./static/jquery.min.js"></script> -->
+  <script src="./static/layui.js"></script>
+  <script src="./static/update.js"></script>
+</body>
+</html>

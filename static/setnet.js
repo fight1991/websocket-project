@@ -17,5 +17,18 @@
       }, 5000)
       return false; // 阻止表单提交
     });
+
   });
+  $(function(){
+    $("#showbtn").click(function(){
+      if ($("#pwd").attr('type') == "password") {
+        $("#pwd").attr('type', 'text');
+        $("#showbtn").text('隐藏密码');
+      } else {
+        $("#pwd").attr('type', 'password');
+        $("#showbtn").text('显示密码');
+
+      }
+    });
+	});
 // })
