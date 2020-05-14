@@ -88,3 +88,34 @@ input[readonly]:not(.layui-unselect) {
 .file-area-first {
   padding-top: 10px;
 }
+.progress-box {
+  display: none;
+  font-size: 12px;
+  color: #fff;
+  text-align: center;
+  line-height: 15px;
+  border-radius: 7px;
+	width: 200px;
+	height: 15px;
+	transition: all .5s linear;
+	animation: animate 3s linear infinite;
+	background-size: 15px 15px;
+	background-image: linear-gradient(  135deg, #fff, #fff 25%, #FFB800 25%, #FFB800 50%, #fff 50%, #fff 75%, #FFB800 75%, #FFB800 100%  );
+}
+.progress-box span{
+  display: inline-block;
+  height: 100%;
+  padding: 0 10px;
+  background-color: #FFB800;
+}
+/*.box:hover {
+	background-position:-100px 0;
+}
+*/
+@keyframes animate {
+  0% {
+  }
+  100% {
+    background-position:150px 0;
+  }
+}

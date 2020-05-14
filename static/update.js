@@ -6,17 +6,11 @@ $(function() {
     var fileObj = null; // 文件对象
     var cuLoaded = 0; // 当前已经读取的字节总数
     var totalLoaded = 0; // 当前文件总字节数
-    var ws = null;
     var sum = 0; // 和校验, 取末尾2位数
-    var isConnect = false; // 是否成功建立连接
-    // createSocket(); // 建立websocket
-    form.verify({
-      testaa: function (value, item) {
-        if (!value) {
-          return 'cannot be empty!'
-        }
-      }
-    })
+    // 建立websocket
+    if (!globalObj.isConnect) {
+      createSocket(layer);
+    }
     //2.升级按钮
         //2.1 点击升级按钮时分片上传开始
     form.on('submit(formSet)', function(data){
@@ -26,7 +20,7 @@ $(function() {
       //   layer.close(index);
       // }, 5000)
       // 
-      if (!isConnect) {
+      if (!globalObj.isConnect) {
         layer.msg('网络未建立连接', {icon: 2});
         return false
       }
@@ -40,7 +34,7 @@ $(function() {
         size: totalLoaded,
         sum: sum
       }
-      ws.send(JSON.stringify(headInfo))
+      globalObj.ws.send(JSON.stringify(headInfo))
       // 分段读取开始
       // readBlob()
       return false; // 阻止表单提交
@@ -92,34 +86,10 @@ $(function() {
         // var tempBuffer8 = new Int8Array(this.result)
         // var totalLength = 2 + 1 + 2 + 1 + tempBuffer8.length + 2
         // let result = mergeBuffer(totalLength, cuLoaded / step, tempBuffer8).buffer
-        ws.send(result)
+        globalObj.ws.send(result)
       }
     }
-    function createSocket(success) {
-      var index = layer.load();
-      ws = new WebSocket('ws://192.168.100.1');
-      ws.onopen = function() {
-        layer.msg('网络已连接', {icon: 1})
-        isConnect = true
-        success && success()
-        layer.close(index);
-      }
-      ws.onmessage = function(e) {
-        console.log('接受到服务端发来的数据', e.data)
-        // 如果服务端接收成功继续读取
-        readBlob()
-      }
-      ws.onclose = function() {
-        isConnect = false
-        layer.msg('网路连接失败', {icon: 5}); 
-        layer.close(index);
-      }
-      ws.onerror = function() {
-        isConnect = false
-        layer.msg('网路连接失败', {icon: 5}); 
-        layer.close(index);
-      }
-    }
+    
     function mergeBuffer(totalLength, index, newBuffer) {
       let arry = new Int8Array(totalLength)
       // 添加帧头

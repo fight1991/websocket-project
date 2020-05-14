@@ -1,8 +1,16 @@
-// $(function() {
+$(function() {
   layui.use(['layer', 'form'], function(){
     var layer = layui.layer ,form = layui.form;
+    if (!globalObj.isConnect) {
+      createSocket(layer);
+    }
     form.verify({
-      testaa: function (value, item) {
+      ssId: function (value, item) {
+        if (!value) {
+          return 'cannot be empty!'
+        }
+      },
+      password: function (value, item) {
         if (!value) {
           return 'cannot be empty!'
         }
@@ -31,4 +39,4 @@
       }
     });
 	});
-// })
+})
