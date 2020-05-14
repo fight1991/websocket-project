@@ -4,14 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <!-- <link rel="stylesheet" href="./static/base.css"> -->
   <link rel="stylesheet" href="./static/css/layui.css">
-  <link rel="stylesheet" href="./static/setnet.css">
+  <link rel="stylesheet" href="./static/base.css">
 </head>
 <body>
   <div class="layui-layout layui-layout-admin">
     <div class="layui-header header header-demo" spring="">
-      <div class="layui-main">
+      <div class="layui-main flex-container">
         <a class="logo" href="/">
           <img src="img/字.png" alt="layui">
         </a>
@@ -26,30 +25,30 @@
     </div>
   </div>
   <div class="container">
-    <div class="setnet"><h1>配网</h1></div>
+    <div class="title-item"><h1>配网</h1></div>
     <form class="layui-form" action="">
       <div class="layui-form-item">
         <label class="layui-form-label">IP</label>
-        <div class="layui-text">
-          <span>132424</span>
+        <div class="layui-input-block">
+          <input type="text" name="ip" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
         <label class="layui-form-label">网关</label>
-        <div class="layui-text">
-          <span>192.168.31.1</span>
+        <div class="layui-input-block">
+          <input type="text" name="gate" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
         <label class="layui-form-label">子网掩码</label>
-        <div class="layui-text">
-          <span>192.168.31.1</span>
+        <div class="layui-input-block">
+          <input type="text" name="net" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
         <label class="layui-form-label">Wifi SSID</label>
         <div class="layui-input-block">
-          <select name="city" lay-verify="required">
+          <select name="ssId" lay-verify="required">
             <option value=""></option>
             <option value="0">ABC</option>
             <option value="1">AAA</option>
@@ -65,8 +64,8 @@
       </div>
       <div class="layui-form-item">
         <div class="layui-input-block">
-          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formSet">保存</button>
-          <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+          <button class="layui-btn layui-btn-lg" lay-submit lay-filter="formSet">保存</button>
+          <button type="reset" class="layui-btn layui-btn-lg layui-btn-primary">重置</button>
         </div>
       </div>
     </form>

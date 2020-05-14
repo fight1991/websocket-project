@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <!-- <link rel="stylesheet" href="./static/base.css"> -->
   <link rel="stylesheet" href="./static/css/layui.css">
-  <link rel="stylesheet" href="./static/update.css">
+  <link rel="stylesheet" href="./static/base.css">
 </head>
 <body>
   <div class="layui-layout layui-layout-admin">
     <div class="layui-header header header-demo" spring="">
-      <div class="layui-main">
-        <a class="logo" href="/">
+      <div class="layui-main flex-container">
+        <div class="logo" href="/">
           <img src="img/字.png" alt="layui">
-        </a>
+        </div>
         <ul class="layui-nav">
           <li class="layui-nav-item">
             <a href="setnet.html">配网</a>
@@ -26,40 +25,44 @@
     </div>
   </div>
   <div class="container">
-    <div class="update"><h1>升级</h1></div>
+    <div class="title-item"><h1>升级</h1></div>
     <form class="layui-form" action="javascript:;">
       <div class="layui-form-item">
         <label class="layui-form-label">SN</label>
-        <div class="layui-text">
-          <span>132424</span>
+        <div class="layui-input-block">
+          <input type="text" name="sn" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
         <label class="layui-form-label">软件版本</label>
-        <div class="layui-text">
-          <span>12.0.1</span>
+        <div class="layui-input-block">
+          <input type="text" name="solf" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
         <label class="layui-form-label">硬件版本</label>
-        <div class="layui-text">
-          <span>12.0.0</span>
+        <div class="layui-input-block">
+          <input type="text" name="firm" readonly value="11" autocomplete="off" class="layui-input">
         </div>
       </div>
       <div class="layui-form-item">
-        <button type="button" class="layui-btn" id="sfile">选择文件</button>
-        <div class="filename layui-inline layui-word-aux"></div>
-        <div class="layui-inline layui-word-aux">只能上传txt/hex文件</div>
+        <div class="file-area file-area-first">
+          <button type="button" class="layui-btn" id="sfile">选择文件</button>
+          <div class="filename layui-inline layui-word-aux"></div>
+          <div class="layui-inline layui-word-aux">只能上传txt/hex文件</div>
+        </div>
       </div>
       <div class="layui-form-item">
-        <div class="layui-progress layui-progress-big" lay-filter="upprogress" lay-showPercent="yes">
-          <div class="layui-progress-bar" lay-percent="0%"></div>
-        </div>
+        <div class="file-area">
+          <div class="layui-progress layui-progress-big" lay-filter="upprogress" lay-showPercent="yes">
+            <div class="layui-progress-bar" lay-percent="0%"></div>
+          </div>
+      </div>
       </div>
       <div class="layui-form-item">
         <div class="layui-input-block">
-          <button class="layui-btn layui-btn-sm" lay-submit lay-filter="formSet">升级</button>
-          <button type="reset" class="layui-btn layui-btn-sm layui-btn-primary">重置</button>
+          <button class="layui-btn layui-btn-lg" lay-submit lay-filter="formSet">升级</button>
+          <button type="reset" class="layui-btn layui-btn-lg layui-btn-primary">重置</button>
         </div>
       </div>
     </form>
