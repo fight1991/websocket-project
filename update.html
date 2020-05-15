@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="./static/base.css">
 </head>
 <body>
+  <div class="layui-progress layui-progress-big progress-ing" lay-filter="upprogress" lay-showPercent="yes">
+    <div class="layui-progress-bar" lay-percent="0%"></div>
+  </div>
   <div class="layui-layout layui-layout-admin">
     <div class="layui-header header header-demo" spring="">
       <div class="layui-main flex-container">
@@ -41,12 +44,6 @@
         </div>
       </div>
       <div class="layui-form-item">
-        <label class="layui-form-label">硬件版本</label>
-        <div class="layui-input-block">
-          <input type="text" name="firm" readonly value="11" autocomplete="off" class="layui-input">
-        </div>
-      </div>
-      <div class="layui-form-item">
         <div class="file-area file-area-first">
           <button type="button" class="layui-btn" id="sfile">选择文件</button>
           <div class="filename layui-inline layui-word-aux"></div>
@@ -54,16 +51,9 @@
         </div>
       </div>
       <div class="layui-form-item">
-        <div class="file-area">
-          <div class="layui-progress layui-progress-big" lay-filter="upprogress" lay-showPercent="yes">
-            <div class="layui-progress-bar" lay-percent="0%"></div>
-          </div>
-      </div>
-      </div>
-      <div class="layui-form-item">
         <div class="layui-input-block">
           <button class="layui-btn layui-btn-lg" lay-submit lay-filter="formSet">升级</button>
-          <button type="reset" class="layui-btn layui-btn-lg layui-btn-primary">重置</button>
+          <button class="layui-btn layui-btn-lg layui-btn-primary upFormRset">重置</button>
         </div>
       </div>
     </form>
