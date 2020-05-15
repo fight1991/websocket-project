@@ -9,7 +9,7 @@ html,body {
 .container {
   background-color: #fff;
   box-sizing: border-box;
-  height: 100%;
+  height: calc(100% - 60px);
   padding: 30px 74px;
   color: #333333;
 }
