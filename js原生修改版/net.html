@@ -170,9 +170,12 @@
     .loading-flag {
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 30px;
-      height: 30px;
-      border: 2px solid blue;
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgb(22, 82, 194);
+      border-right: none;
+      border-top: none;
+      border-radius: 50%;
       animation: loading 1s linear infinite;
     }
   
@@ -232,10 +235,6 @@
           <label for="mac">Mac</label>
           <input id="mac" type="text" name="mac" readonly value="">
         </div>
-        <!-- <div class="form-item">
-          <label for="net">子网掩码</label>
-          <input id="net" type="text" name="net" readonly value="11">
-        </div> -->
         <div class="form-item">
           <label>Wifi SSID</label>
           <select name="ssId" id="wifi">
