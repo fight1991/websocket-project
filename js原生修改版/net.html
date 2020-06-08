@@ -422,7 +422,7 @@
       ws = new WebSocket('ws://192.168.100.1');
       globalObj.ws = ws
       ws.onopen = function() {
-        messageTips.success('网络已连接,初始化页面')
+        messageTips.success('网络已连接,正在初始化页面...')
         globalObj.isConnect = true
       }
       ws.onmessage = function(e) {
