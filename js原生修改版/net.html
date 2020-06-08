@@ -48,7 +48,7 @@
       flex: 1;
     }
     input[readonly]:not(.layui-unselect) {
-      background-color: #f5f5f5;
+      background-color: #d4cfcf;
     }
     select {
       height: 30px;
@@ -210,13 +210,13 @@
           <input id="ip" type="text" name="ip" readonly value="11">
         </div>
         <div class="form-item">
-          <label for="gate">网关</label>
-          <input id="gate" type="text" name="gate" readonly value="11">
+          <label for="mac">网关</label>
+          <input id="mac" type="text" name="mac" readonly value="11">
         </div>
-        <div class="form-item">
+        <!-- <div class="form-item">
           <label for="net">子网掩码</label>
           <input id="net" type="text" name="net" readonly value="11">
-        </div>
+        </div> -->
         <div class="form-item">
           <label>Wifi SSID</label>
           <select name="ssId" id="wifi">
@@ -246,6 +246,10 @@
         <div class="form-item">
           <label for="solf">软件版本</label>
           <input id="solf" type="text" name="solf" readonly value="11">
+        </div>
+        <div class="form-item">
+          <label for="firm">硬件版本</label>
+          <input id="firm" type="text" name="firm" readonly value="11">
         </div>
         <div class="form-item">
           <span class="choose-file">选择文件</span>
@@ -284,6 +288,7 @@
     var reader = new FileReader();
     var sum = null; // 和校验
     var step = 512; // 每次读取字节数b
+    var bagIndex = 1; // 第1包
     var cuLoaded = 0; // 当前已经读取的字节总数
     var totalLoaded = 0; // 当前文件总字节数
     window.onbeforeunload = function () {
@@ -293,9 +298,9 @@
         globalObj.ws = null
       }
     }
-    let netDoms = getDomByIds(['ip', 'gate', 'net', 'wifi', 'password'])
+    let netDoms = getDomByIds(['ip', 'mac', 'wifi', 'password'])
     console.log()
-    let upDoms = getDomByIds(['sn', 'solf'])
+    let upDoms = getDomByIds(['sn', 'solf', 'firm'])
     let $file = getDomByIds('file')
     let $fileName = document.querySelector('.file-name')
     let $save = document.querySelector('.net-save')
@@ -423,17 +428,21 @@
     function wsMessage (data, callback) {
       if (data) {
         if (data.fun == "netInit") {
-          // 初始化配网页面表单
+          // 初始化配网页面表单 和升级表单
           netDoms.ip.value = data.result.ip || ''
-          netDoms.gate.value = data.result.gate || ''
-          netDoms.net.value = data.result.net || ''
+          netDoms.mac.value = data.result.mac || ''
+          // netDoms.net.value = data.result.net || ''
           if (data.result.ssId && data.result.ssId.length > 0) {
             var str = ''
             data.result.ssId.forEach(v => {
               str += '<option>' + v + '</option>'
             })
-            netDoms.wifi.innerHtml = 'str'
+            netDoms.wifi.innerHtml = str
           }
+          // 初始化本地上传页面表单
+          upDoms.sn.value = data.result.sn || ''
+          upDoms.solf.value = data.result.solf || ''
+          upDoms.firm.value = data.result.firm || ''
         }
         if (data.fun == "netResult") {
           if (data.result == 0) {
@@ -461,7 +470,13 @@
         if (data.fun == "upPack") {
           // 包接受成功继续发送
           if (data.result < 32768) {
-            callback && callback()
+            if (data.result > 0) { // 服务端返回包的索引,说明可以发送下一包了
+              bagIndex = data.result
+              callback && callback()
+            } else { // 重新发送失败的包
+              cuLoaded = (bagIndex - 1) * step
+              callback && callback()
+            }
           }
           if (65535 > data.result > 32768) {
             setProgress('100%')
