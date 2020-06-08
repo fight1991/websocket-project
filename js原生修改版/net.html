@@ -141,10 +141,17 @@
         background-position:150px 0;
       }
     }
+    @keyframes loading {
+      0% {
+      }
+      100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
     .none {
       display: none;
     }
-    .modal {
+    .modal,.loading {
       top: 0;
       left: 0;
       position: fixed;
@@ -153,13 +160,22 @@
       background-color: rgba(0,0,0,.4);
       z-index: 33;
     }
-    .net-status, .message {
+    .net-status, .message, .loading-flag {
       position: absolute;
       top: 52px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 66;
     }
+    .loading-flag {
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      border: 2px solid blue;
+      animation: loading 1s linear infinite;
+    }
+  
     .net-status {
       font-size: 12px;
       color: #fff;
@@ -200,6 +216,9 @@
   <div class="modal none">
     <div class="net-status"><span>网络正在连接 . . .</span></div>
   </div>
+  <div class="loading none">
+    <div class="loading-flag"></div>
+  </div>
   <div class="block-area">
     <!-- 配网区域 -->
     <div class="net-set contanier">
@@ -207,11 +226,11 @@
       <form>
         <div class="form-item">
           <label for="ip">IP</label>
-          <input id="ip" type="text" name="ip" readonly value="11">
+          <input id="ip" type="text" name="ip" readonly value="">
         </div>
         <div class="form-item">
-          <label for="mac">网关</label>
-          <input id="mac" type="text" name="mac" readonly value="11">
+          <label for="mac">Mac</label>
+          <input id="mac" type="text" name="mac" readonly value="">
         </div>
         <!-- <div class="form-item">
           <label for="net">子网掩码</label>
@@ -220,14 +239,12 @@
         <div class="form-item">
           <label>Wifi SSID</label>
           <select name="ssId" id="wifi">
-            <option value="rr">rr</option>
-            <option value="0">ABC</option>
-            <option value="1">AAA</option>
+            <option value="无">无</option>
           </select>
         </div>
         <div class="form-item">
           <label for="password">密码</label>
-          <input id="password" type="text" name="password" value="11">
+          <input id="password" type="text" name="password" value="">
         </div>
       </form>
       <div class="button-group flex-center">
@@ -241,15 +258,15 @@
       <form action="">
         <div class="form-item">
           <label for="sn">SN</label>
-          <input id="sn" type="text" name="sn" readonly value="11">
+          <input id="sn" type="text" name="sn" readonly value="">
         </div>
         <div class="form-item">
           <label for="solf">软件版本</label>
-          <input id="solf" type="text" name="solf" readonly value="11">
+          <input id="solf" type="text" name="solf" readonly value="">
         </div>
         <div class="form-item">
           <label for="firm">硬件版本</label>
-          <input id="firm" type="text" name="firm" readonly value="11">
+          <input id="firm" type="text" name="firm" readonly value="">
         </div>
         <div class="form-item">
           <span class="choose-file">选择文件</span>
@@ -314,9 +331,9 @@
     }
     // 点击配网保存
     $save.onclick = function (e) {
-      let ssId = netDoms.wifi.value
+      let ssid = netDoms.wifi.value
       let password = netDoms.password.value
-      if (!ssId) {
+      if (!ssid) {
         messageTips.error('请选择ssId')
         return
       }
@@ -324,9 +341,10 @@
         messageTips.error('请输入密码')
         return
       }
+      setModal('show', 'loading')
       globalObj.ws.send(JSON.stringify({
         fun: 'netSet',
-        ssId,
+        ssid,
         password
       }))
     }
@@ -403,9 +421,9 @@
     function createSocket(onmessage) {
       setModal('show')
       ws = new WebSocket('ws://192.168.100.1');
+      globalObj.ws = ws
       ws.onopen = function() {
-        setModal('hidden')
-        messageTips.success('网络已连接')
+        messageTips.success('网络已连接,初始化页面')
         globalObj.isConnect = true
       }
       ws.onmessage = function(e) {
@@ -431,19 +449,22 @@
           netDoms.ip.value = data.result.ip || ''
           netDoms.mac.value = data.result.mac || ''
           // netDoms.net.value = data.result.net || ''
-          if (data.result.ssId && data.result.ssId.length > 0) {
+          if (data.result.ssid && data.result.ssid.length > 0) {
+            let tempList = [...new Set(data.result.ssid)]
             var str = ''
-            data.result.ssId.forEach(v => {
-              str += '<option>' + v + '</option>'
+            tempList.forEach(v => {
+              str += `<option value=${v}>${v}</option>`
             })
-            netDoms.wifi.innerHtml = str
+            netDoms.wifi.innerHTML = str
           }
           // 初始化本地上传页面表单
           upDoms.sn.value = data.result.sn || ''
           upDoms.solf.value = data.result.solf || ''
           upDoms.firm.value = data.result.firm || ''
+          setModal('hidden')
         }
         if (data.fun == "netResult") {
+          setModal('hidden', 'loading')
           if (data.result == 0) {
             messageTips.error('配网操作失败')
           } else {
@@ -509,8 +530,8 @@
         globalObj.ws.send(result)
       }
     }
-    function setModal (type) {
-      $modal = document.querySelector('.modal')
+    function setModal (type, showT='modal') {
+      $modal = document.querySelector('.'+showT)
       if (type == 'show') {
         $modal.classList.remove('none')
       } else {
