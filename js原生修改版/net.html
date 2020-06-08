@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>net</title>
+  <style>
+    html,body {
+      width: 100%;
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: rgb(90, 185, 214);
+    }
+    .contanier {
+      margin: 15px;
+      padding: 5px;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+    .flex-center {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .p10 {
+      padding: 10px;
+    }
+    .title {
+      border-bottom:1px solid rgb(207, 124, 0);
+      margin-bottom: 10px;
+      color: rgb(218, 99, 20);
+      font-weight: bold;
+    }
+    label {
+      display: inline-block;
+      width: 100px;
+      margin-right: 10px;
+    }
+    input:not(#file) {
+      border: 1px solid rgb(169, 169, 169);
+    }
+    input, select {
+      height: 25px;
+      line-height: 25px;
+      flex: 1;
+    }
+    input[readonly]:not(.layui-unselect) {
+      background-color: #f5f5f5;
+    }
+    select {
+      height: 30px;
+      line-height: 30px;
+    }
+    select option {
+      padding: 5px 0;
+    }
+    .form-item {
+      display: flex;
+      padding: 10px;
+    }
+    .button-group {
+      padding: 10px 0;
+    }
+    .button-group button {
+      padding: 5px;
+      margin: 0 5px;
+      width: 80px;
+      border: 1px solid #ccc;
+    }
+    .button-group button:hover {
+      cursor: pointer;
+    }
+    .button-group .save-btn {
+      background-color: #287fca;
+      color: #fff;
+      border-color: #287fca;
+    }
+    /* 本地升级区域 */
+    .choose-file {
+      display: inline-block;
+      width: 100px;
+      margin-right: 10px;
+    }
+    .file-label {
+      background-color: #3da004;
+      color: #f5f5f5;
+      height: 25px;
+      line-height: 25px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .file-type {
+      color: #666;
+      font-size: 12px;
+      line-height: 25px;
+    }
+    .progress-container {
+      height: 20px;
+      background-color: #ccc;
+      flex: 1;
+      border-radius: 10px;
+      position: relative;
+    }
+    .progress-line {
+      position: absolute;
+      left: 0;
+      top: 0;
+      border-radius: 10px;
+      width: 25px;
+      height: 100%;
+      background-color: #3da004;
+      color: #f5f5f5;
+    }
+    .block-area {
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    @media (max-width: 768px) {
+      .block-area {
+        width: 100%;
+        margin: 0;
+      }
+    }
+    @media (min-width: 768px) {
+      .block-area {
+        width: 600px;
+      }
+    }
+    @media (min-width: 992px) {
+      .block-area {
+        width: 800px;
+      }
+    }
+    @keyframes animate {
+      0% {
+      }
+      100% {
+        background-position:150px 0;
+      }
+    }
+    .none {
+      display: none;
+    }
+    .modal {
+      top: 0;
+      left: 0;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,.4);
+      z-index: 33;
+    }
+    .net-status, .message {
+      position: absolute;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 66;
+    }
+    .net-status {
+      font-size: 12px;
+      color: #fff;
+      text-align: center;
+      line-height: 15px;
+      border-radius: 7px;
+      width: 200px;
+      height: 15px;
+      transition: all .5s linear;
+      animation: animate 3s linear infinite;
+      background-size: 15px 15px;
+      background-image: linear-gradient(  135deg, #fff, #fff 25%, #FFB800 25%, #FFB800 50%, #fff 50%, #fff 75%, #FFB800 75%, #FFB800 100%  );
+    }
+    .net-status span{
+      display: inline-block;
+      height: 100%;
+      padding: 0 10px;
+      background-color: #FFB800;
+    }
+    .message {
+      min-width: 180px;
+      background-color: #fff;
+      text-align: center;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <div class="message none"></div>
+  <div class="modal none">
+    <div class="net-status"><span>网络正在连接 . . .</span></div>
+  </div>
+  <div class="block-area">
+    <!-- 配网区域 -->
+    <div class="net-set contanier">
+      <div class="title p10">配网</div>
+      <form>
+        <div class="form-item">
+          <label for="ip">IP</label>
+          <input id="ip" type="text" name="ip" readonly value="11">
+        </div>
+        <div class="form-item">
+          <label for="gate">网关</label>
+          <input id="gate" type="text" name="gate" readonly value="11">
+        </div>
+        <div class="form-item">
+          <label for="net">子网掩码</label>
+          <input id="net" type="text" name="net" readonly value="11">
+        </div>
+        <div class="form-item">
+          <label>Wifi SSID</label>
+          <select name="ssId" id="wifi">
+            <option value="rr">rr</option>
+            <option value="0">ABC</option>
+            <option value="1">AAA</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label for="password">密码</label>
+          <input id="password" type="text" name="password" value="11">
+        </div>
+      </form>
+      <div class="button-group flex-center">
+        <button class="save-btn net-save">保存</button>
+        <button class="reset-btn netset-btn">重置</button>
+      </div>
+    </div>
+    <!-- 本地升级区域 -->
+    <div class="local-upgrade contanier">
+      <div class="title p10">本地升级</div>
+      <form action="">
+        <div class="form-item">
+          <label for="sn">SN</label>
+          <input id="sn" type="text" name="sn" readonly value="11">
+        </div>
+        <div class="form-item">
+          <label for="solf">软件版本</label>
+          <input id="solf" type="text" name="solf" readonly value="11">
+        </div>
+        <div class="form-item">
+          <span class="choose-file">选择文件</span>
+          <label for="file" class="file-label">请选择</label>
+          <span class="file-type file-name">只能上传txt/hex文件</span>
+          <input id="file" type="file" style="display: none;">
+        </div>
+        <div class="form-item">
+          <label></label>
+          <div class="progress-container">
+            <div class="progress-line">0%</div>
+          </div>
+        </div>
+      </form>
+      <div class="button-group flex-center">
+        <button class="save-btn up-grade">升级</button>
+        <button class="reset-btn upset-btn">重置</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var messageTips = {
+      error: function (text) {
+        Tips(text, 'error')
+      },
+      success: function (text) {
+        Tips(text, 'success')
+      }
+    }
+    // 全局变量
+    var globalObj = {
+      ws: null,
+      isConnect: false
+    }
+    var fileInfo = null;
+    var reader = new FileReader();
+    var sum = null; // 和校验
+    var step = 512; // 每次读取字节数b
+    var cuLoaded = 0; // 当前已经读取的字节总数
+    var totalLoaded = 0; // 当前文件总字节数
+    window.onbeforeunload = function () {
+      if (globalObj.ws) {
+        globalObj.ws.close()
+        globalObj.isConnect = false
+        globalObj.ws = null
+      }
+    }
+    let netDoms = getDomByIds(['ip', 'gate', 'net', 'wifi', 'password'])
+    console.log()
+    let upDoms = getDomByIds(['sn', 'solf'])
+    let $file = getDomByIds('file')
+    let $fileName = document.querySelector('.file-name')
+    let $save = document.querySelector('.net-save')
+    let $netSet = document.querySelector('.netset-btn')
+    let $up = document.querySelector('.up-grade')
+    let $upSet = document.querySelector('.upset-btn')
+    let proLine = document.querySelector('.progress-line')
+    if (!globalObj.isConnect) {
+      // createSocket(function(data) {
+      //   wsMessage(data, readBlob)
+      // })
+    }
+    // 点击配网保存
+    $save.onclick = function (e) {
+      let ssId = netDoms.wifi.value
+      let password = netDoms.password.value
+      if (!ssId) {
+        messageTips.error('请选择ssId')
+        return
+      }
+      if (!password) {
+        messageTips.error('请输入密码')
+        return
+      }
+      globalObj.ws.send(JSON.stringify({
+        fun: 'netSet',
+        ssId,
+        password
+      }))
+    }
+    // 点击配网重置
+    $netSet.onclick = function (e) {
+      netDoms.wifi.value = ''
+      netDoms.password.value = ''
+    }
+    // 点击选择文件
+    $file.onchange = function (e) {
+      let file = e.target.files[0]
+      let fileName = file.name
+      if (!(fileName.includes('.txt') || fileName.includes('.hex'))) {
+        messageTips.error('文件格式不正确, 请重新选择')
+        return false
+      }
+      if (fileInfo.size  > 1024 * 2) { // 大于2k
+        messageTips.error('文件不能大于2k, 请重新选择')
+        return false
+      }
+      totalLoaded = file.size
+      fileInfo = file
+      $fileName.innerText = fileName
+      reader.readAsArrayBuffer(fileObj)
+      reader.onload = function () {
+        let unit8 = new Uint8Array(this.result)
+        sum = sumCheck(unit8, 2)
+      }
+    }
+    // 点击升级按钮
+    $up.onclick = function (e) {
+      if (!globalObj.isConnect) {
+        messageTips.error('网络未建立连接!')
+        return false
+      }
+      if (!fileInfo) {
+        messageTips.error('请选择文件!')
+        return false
+      }
+      // 开始升级先发送包文件信息
+      let headInfo = {
+        fun: 'up', // up 升级
+        size: fileInfo.size,
+        sum: sum
+      }
+      globalObj.ws.send(JSON.stringify(headInfo))
+      // 显示进度条效果
+    }
+    // 点击升级重置
+    $upSet.onclick = function (e) {
+      fileInfo = null
+      cuLoaded = 0
+      totalLoaded = 0
+      proLine.style.width = '25px'
+      proLine.innerText = '0%'
+    }
+
+
+
+
+
+    function getDomByIds(id) {
+      if (Array.isArray(id)) {
+        var objDom = {}
+        id.forEach(v => {
+          objDom[v] = document.querySelector('#'+ v)
+        })
+        return objDom
+      }
+      if (typeof id === 'string') {
+        return document.querySelector('#'+ id)
+      }
+    }
+    function createSocket(onmessage) {
+      setModal('show')
+      ws = new WebSocket('ws://192.168.100.1');
+      ws.onopen = function() {
+        setModal('hidden')
+        messageTips.success('网络已连接')
+        globalObj.isConnect = true
+      }
+      ws.onmessage = function(e) {
+        console.log('接受到服务端发来的数据', e.data)
+        // 如果服务端接收成功继续读取
+        let data = isJSON(e.data) ? JSON.parse(e.data) : ''
+        onmessage && onmessage(data)
+      }
+      ws.onclose = function() {
+        setModal('hidden')
+        globalObj.isConnect = false
+      }
+      ws.onerror = function() {
+        setModal('hidden')
+        globalObj.isConnect = false
+        messageTips.error('网路连接失败')
+      }
+    }
+    function wsMessage (data, callback) {
+      if (data) {
+        if (data.fun == "netInit") {
+          // 初始化配网页面表单
+          netDoms.ip.value = data.result.ip || ''
+          netDoms.gate.value = data.result.gate || ''
+          netDoms.net.value = data.result.net || ''
+          if (data.result.ssId && data.result.ssId.length > 0) {
+            var str = ''
+            data.result.ssId.forEach(v => {
+              str += '<option>' + v + '</option>'
+            })
+            netDoms.wifi.innerHtml = 'str'
+          }
+        }
+        if (data.fun == "netResult") {
+          if (data.result == 0) {
+            messageTips.error('配网操作失败')
+          } else {
+            messageTips.error('配网操作成功')
+            setTimeout(() => {
+              location.reload()
+            }, 1000)
+          }
+        }
+        if (data.fun == "upInit") {
+          // 初始化本地上传页面表单
+          upDoms.sn.value = data.result.sn || ''
+          upDoms.solf.value = data.result.solf || ''
+        }
+        if (data.fun == "upResult") {
+          if (data.result == 0) {
+            console.log('操作失败')
+          } else {
+            // 开始发包
+            callback && callback()
+          }
+        }
+        if (data.fun == "upPack") {
+          // 包接受成功继续发送
+          if (data.result < 32768) {
+            callback && callback()
+          }
+          if (65535 > data.result > 32768) {
+            setProgress('100%')
+            console.log('升级完成')
+          }
+          if (data.result == 65535) {
+            console.log('升级失败,请重新尝试')
+            setTimeout(() => {
+              location.reload()
+            })
+          }
+        }
+      }
+    }
+    function readBlob () {
+      if (cuLoaded > totalLoaded) {
+        console.log('文件传输完毕')
+        return
+      }
+      let temp = fileObj.slice(cuLoaded, cuLoaded + step)
+      reader.readAsArrayBuffer(temp)
+      // 文件读取成功
+      reader.onload = function () {
+        cuLoaded += step
+        var percent = Math.ceil(cuLoaded * 100 / totalLoaded)
+        // 当文件读取进度100%时,停留在99,只能说明文件传输成功,
+        if (percent > 100) {
+          percent = 99
+        }
+        setProgress(percent + '%')
+        globalObj.ws.send(result)
+      }
+    }
+    function setModal (type) {
+      $modal = document.querySelector('.modal')
+      if (type == 'show') {
+        $modal.classList.remove('none')
+      } else {
+        $modal.classList.add('none')
+      }
+    }
+    function setProgress (value) {
+      proLine.style.width = value
+      proLine.innerText = value
+    }
+    function Tips (text, error) {
+      var timer = null
+      $message = document.querySelector('.message')
+      $message.classList.remove('none')
+      $message.classList.add(error)
+      $message.innerText = text || ''
+      timer = setTimeout(() => {
+        $message.classList.add('none')
+        $message.classList.remove(error)
+        $message.innerText = ''
+        clearTimeout(timer)
+        timer = null
+      }, 2000)
+    }
+    function isJSON(str) {
+      if (typeof str == 'string') {
+        try {
+          var obj = JSON.parse(str);
+          if(typeof obj == 'object' && obj ){
+            return true;
+          }else{
+            return false;
+          }
+        } catch(e) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    function sumCheck (arr, length) {
+      let total = 0
+      for (let i = 0; i < arr.length; i++) {
+        total += arr[i]
+      }
+      return Number(total.toString().slice(arr.length-length))
+    }
+  </script>
+</body>
+</html>
