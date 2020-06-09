@@ -157,7 +157,7 @@
     .none {
       display: none;
     }
-    .modal,.loading {
+    .modal,.loading, .waiting {
       top: 0;
       left: 0;
       position: fixed;
@@ -166,12 +166,19 @@
       background-color: rgba(0,0,0,.4);
       z-index: 33;
     }
-    .net-status, .message, .loading-flag {
+    .waiting {
+      background-color: rgba(0,0,0,.8);
+    }
+    .net-status, .message, .loading-flag, .waiting-flag {
       position: fixed;
       top: 52px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 66;
+    }
+    .waiting-flag {
+      text-align: center;
+      color: #fff;
     }
     .loading-flag {
       top: 50%;
@@ -228,6 +235,9 @@
   <div class="loading none">
     <div class="loading-flag"></div>
   </div>
+  <div class="waiting none">
+    <div class="waiting-flag"></div>
+  </div>
   <div class="block-area">
     <!-- 配网区域 -->
     <div class="net-set contanier">
@@ -277,7 +287,7 @@
         <div class="form-item">
           <span class="choose-file">选择文件</span>
           <label for="file" class="file-label">请选择</label>
-          <span class="file-type file-name">只能上传bin文件</span>
+          <span class="file-type file-name">只能上传.bin文件</span>
           <input id="file" type="file" style="display: none;">
         </div>
         <div class="form-item">
@@ -502,9 +512,9 @@
           }
           if (data.result > 32768 && data.result < 65535) {
             setProgress('100%')
-            messageTips.success('升级完成!')
             setModal('hidden', 'loading')
             // 开启倒计时10s后重新刷新页面
+            waitTime(15)
           }
           if (data.result == 65535) {
             setModal('hidden', 'loading')
@@ -515,8 +525,7 @@
       }
     }
     function readBlob () {
-      if (cuLoaded > totalLoaded) {
-        console.log('文件传输完毕')
+      if (cuLoaded > totalLoaded) { // 文件传输完毕
         return
       }
       let temp = fileInfo.slice(cuLoaded, cuLoaded + step)
@@ -533,7 +542,7 @@
         globalObj.ws.send(this.result)
       }
     }
-    function setModal (type, showT='modal') {
+    function setModal (type, showT='modal', txt) {
       $modal = document.querySelector('.'+showT)
       if (type == 'show') {
         $modal.classList.remove('none')
@@ -581,6 +590,24 @@
         total += arr[i]
       }
       return total % 256
+    }
+    function waitTime (sec=10) {
+      let $waitTxt = document.querySelector('.waiting .waiting-flag')
+      let seconds = sec
+      let timer = null
+      setModal('show', 'waiting')
+      $waitTxt.innerText = '升级中...... 请等待' + seconds + 'S'
+      timer = setInterval(() => {
+        seconds--
+        let temp = seconds < 10 && seconds > 0 ? '0' + seconds : seconds
+        $waitTxt.innerText = '升级中...... 请等待' + temp + 'S'
+        if (seconds <= 0) {
+          clearInterval(timer)
+          timer = null
+          setModal('hidden', 'waiting')
+          location.reload()
+        }
+      }, 1000)
     }
   </script>
 </body>
