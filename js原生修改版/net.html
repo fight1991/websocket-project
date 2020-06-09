@@ -463,14 +463,11 @@
           setModal('hidden')
         }
         if (data.fun == "netResult") {
-          setModal('hidden', 'loading')
-          if (data.result == 0) {
-            messageTips.error('配网操作失败')
+          let num = data.result
+          if (num != 0) {
+            setModal('hidden', 'loading')
           } else {
-            messageTips.error('配网操作成功')
-            setTimeout(() => {
-              location.reload()
-            }, 1000)
+            num == 1 ? messageTips.success('配网操作成功!') : messageTips.error('配网操作失败!')
           }
         }
         if (data.fun == "upInit") {
