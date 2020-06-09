@@ -230,7 +230,7 @@
 <body>
   <div class="message none"></div>
   <div class="modal none">
-    <div class="net-status"><span>网络正在连接 . . .</span></div>
+    <div class="net-status"><span>The network is connecting . . .</span></div>
   </div>
   <div class="loading none">
     <div class="loading-flag"></div>
@@ -241,7 +241,7 @@
   <div class="block-area">
     <!-- 配网区域 -->
     <div class="net-set contanier">
-      <div class="title p10">配网</div>
+      <div class="title p10">Set-up net</div>
       <form>
         <div class="form-item">
           <label for="ip">IP</label>
@@ -254,40 +254,40 @@
         <div class="form-item">
           <label>Wifi SSID</label>
           <select name="ssId" id="wifi">
-            <option value="">无</option>
+            <option value="">nothing</option>
           </select>
         </div>
         <div class="form-item">
-          <label for="password">密码</label>
+          <label for="password">Password</label>
           <input id="password" type="text" name="password" value="">
         </div>
       </form>
       <div class="button-group flex-center">
-        <button class="save-btn net-save">保存</button>
-        <button class="save-btn net-scan">扫描WIFI</button>
-        <button class="reset-btn netset-btn">清空</button>
+        <button class="save-btn net-save">Save</button>
+        <button class="save-btn net-scan">Scan WIFI</button>
+        <button class="reset-btn netset-btn">Clear</button>
       </div>
     </div>
     <!-- 本地升级区域 -->
     <div class="local-upgrade contanier">
-      <div class="title p10">本地升级</div>
+      <div class="title p10">Local upgrade</div>
       <form action="">
         <div class="form-item">
           <label for="sn">SN</label>
           <input id="sn" type="text" name="sn" readonly value="">
         </div>
         <div class="form-item">
-          <label for="solf">软件版本</label>
+          <label for="solf">Software version</label>
           <input id="solf" type="text" name="solf" readonly value="">
         </div>
         <div class="form-item">
-          <label for="firm">硬件版本</label>
+          <label for="firm">Hardware version</label>
           <input id="firm" type="text" name="firm" readonly value="">
         </div>
         <div class="form-item">
-          <span class="choose-file">选择文件</span>
-          <label for="file" class="file-label">请选择</label>
-          <span class="file-type file-name">只能上传.bin文件</span>
+          <span class="choose-file">Select File</span>
+          <label for="file" class="file-label">Please select</label>
+          <span class="file-type file-name">Only .bin files can be uploaded</span>
           <input id="file" type="file" style="display: none;">
         </div>
         <div class="form-item">
@@ -298,8 +298,8 @@
         </div>
       </form>
       <div class="button-group flex-center">
-        <button class="save-btn up-grade">升级</button>
-        <button class="reset-btn upset-btn">清空</button>
+        <button class="save-btn up-grade">Upgrade</button>
+        <button class="reset-btn upset-btn">Clear</button>
       </div>
     </div>
   </div>
@@ -351,11 +351,11 @@
       let ssid = netDoms.wifi.value
       let password = netDoms.password.value
       if (!ssid) {
-        messageTips.error('请选择ssId')
+        messageTips.error('Please select a ssId')
         return
       }
       if (!password) {
-        messageTips.error('请输入密码')
+        messageTips.error('Please enter your password')
         return
       }
       setModal('show', 'loading')
@@ -382,11 +382,11 @@
       let file = e.target.files[0]
       let fileName = file.name
       if (!(fileName.includes('.bin'))) {
-        messageTips.error('文件格式不正确, 请重新选择')
+        messageTips.error('The file format is incorrect, please select again')
         return false
       }
       if (file.size  > 1024 * 128) { // 大于128k
-        messageTips.error('文件不能大于128k, 请重新选择')
+        messageTips.error('The file cannot be greater than 128K, please select again')
         return false
       }
       totalLoaded = file.size
@@ -401,11 +401,11 @@
     // 点击升级按钮
     $up.onclick = function (e) {
       if (!globalObj.isConnect) {
-        messageTips.error('网络未建立连接!')
+        messageTips.error('The network is not connected!')
         return false
       }
       if (!fileInfo) {
-        messageTips.error('请选择文件!')
+        messageTips.error('Please select file!')
         return false
       }
       // 开始升级先发送包文件信息
@@ -451,7 +451,7 @@
       ws.onopen = function() {
         setModal('hidden')
         setModal('show', 'loading')
-        messageTips.success('网络已连接,正在初始化页面...')
+        messageTips.success('The network is connected,initializing the page...')
         globalObj.isConnect = true
       }
       ws.onmessage = function(e) {
@@ -467,7 +467,7 @@
       ws.onerror = function() {
         setModal('hidden')
         globalObj.isConnect = false
-        messageTips.error('网路连接失败')
+        messageTips.error('Network connection failure')
       }
     }
     function wsMessage (data, callback) {
@@ -496,7 +496,7 @@
           if (num != 0) {
             setModal('hidden', 'loading')
           } else {
-            num == 1 ? messageTips.success('配网操作成功!') : messageTips.error('配网操作失败!')
+            num == 1 ? messageTips.success('Distribution success!') : messageTips.error('Distribution failed!')
           }
         }
         if (data.fun == "upPack") {
@@ -519,7 +519,7 @@
           if (data.result == 65535) {
             setModal('hidden', 'loading')
             setProgress('0%')
-            messageTips.error('升级失败,请重新升级!')
+            messageTips.error('Upgrade failed. Please upgrade again!')
           }
         }
       }
@@ -596,11 +596,11 @@
       let seconds = sec
       let timer = null
       setModal('show', 'waiting')
-      $waitTxt.innerText = '升级中...... 请等待' + seconds + 'S'
+      $waitTxt.innerText = 'Updating...... Please wait' + seconds + 'S'
       timer = setInterval(() => {
         seconds--
         let temp = seconds < 10 && seconds > 0 ? '0' + seconds : seconds
-        $waitTxt.innerText = '升级中...... 请等待' + temp + 'S'
+        $waitTxt.innerText = 'Updating...... Please wait' + temp + 'S'
         if (seconds <= 0) {
           clearInterval(timer)
           timer = null
