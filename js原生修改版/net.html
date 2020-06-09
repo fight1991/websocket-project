@@ -13,6 +13,7 @@
       margin: 0;
       padding: 0;
       background-color: rgb(90, 185, 214);
+      overflow: auto;
     }
     .contanier {
       margin: 15px;
@@ -112,6 +113,7 @@
       position: absolute;
       left: 0;
       top: 0;
+      text-align: right;
       border-radius: 10px;
       width: 25px;
       height: 100%;
@@ -165,7 +167,7 @@
       z-index: 33;
     }
     .net-status, .message, .loading-flag {
-      position: absolute;
+      position: fixed;
       top: 52px;
       left: 50%;
       transform: translateX(-50%);
@@ -330,9 +332,9 @@
     let $upSet = document.querySelector('.upset-btn')
     let proLine = document.querySelector('.progress-line')
     if (!globalObj.isConnect) {
-      // createSocket(function(data) {
-      //   wsMessage(data, readBlob)
-      // })
+      createSocket(function(data) {
+        wsMessage(data, readBlob)
+      })
     }
     // 点击配网保存
     $save.onclick = function (e) {
@@ -373,17 +375,17 @@
         messageTips.error('文件格式不正确, 请重新选择')
         return false
       }
-      if (fileInfo.size  > 1024 * 128) { // 大于128k
+      if (file.size  > 1024 * 128) { // 大于128k
         messageTips.error('文件不能大于128k, 请重新选择')
         return false
       }
       totalLoaded = file.size
       fileInfo = file
       $fileName.innerText = fileName
-      reader.readAsArrayBuffer(fileObj)
+      reader.readAsArrayBuffer(fileInfo)
       reader.onload = function () {
         let unit8 = new Uint8Array(this.result)
-        sum = sumCheck(unit8, 2)
+        sum = sumCheck(unit8)
       }
     }
     // 点击升级按钮
@@ -398,12 +400,14 @@
       }
       // 开始升级先发送包文件信息
       let headInfo = {
-        fun: 'up', // up 升级
+        fun: 'upFile', // up 升级
         size: fileInfo.size,
         sum: sum
       }
       globalObj.ws.send(JSON.stringify(headInfo))
       // 显示进度条效果
+      // 显示loading
+      setModal('show', 'loading')
     }
     // 点击升级重置
     $upSet.onclick = function (e) {
@@ -435,6 +439,8 @@
       ws = new WebSocket('ws://192.168.100.1');
       globalObj.ws = ws
       ws.onopen = function() {
+        setModal('hidden')
+        setModal('show', 'loading')
         messageTips.success('网络已连接,正在初始化页面...')
         globalObj.isConnect = true
       }
@@ -473,7 +479,7 @@
           upDoms.sn.value = data.result.sn || ''
           upDoms.solf.value = data.result.solf || ''
           upDoms.firm.value = data.result.firm || ''
-          setModal('hidden')
+          setModal('hidden', 'loading')
         }
         if (data.fun == "netResult") {
           let num = data.result
@@ -482,11 +488,6 @@
           } else {
             num == 1 ? messageTips.success('配网操作成功!') : messageTips.error('配网操作失败!')
           }
-        }
-        if (data.fun == "upInit") {
-          // 初始化本地上传页面表单
-          upDoms.sn.value = data.result.sn || ''
-          upDoms.solf.value = data.result.solf || ''
         }
         if (data.fun == "upPack") {
           // 可以发包了
@@ -499,15 +500,16 @@
               callback && callback()
             }
           }
-          if (65535 > data.result > 32768) {
+          if (data.result > 32768 && data.result < 65535) {
             setProgress('100%')
-            console.log('升级完成')
+            messageTips.success('升级完成!')
+            setModal('hidden', 'loading')
+            // 开启倒计时10s后重新刷新页面
           }
           if (data.result == 65535) {
-            console.log('升级失败,请重新尝试')
-            setTimeout(() => {
-              location.reload()
-            })
+            setModal('hidden', 'loading')
+            setProgress('0%')
+            messageTips.error('升级失败,请重新升级!')
           }
         }
       }
@@ -517,18 +519,18 @@
         console.log('文件传输完毕')
         return
       }
-      let temp = fileObj.slice(cuLoaded, cuLoaded + step)
+      let temp = fileInfo.slice(cuLoaded, cuLoaded + step)
       reader.readAsArrayBuffer(temp)
       // 文件读取成功
       reader.onload = function () {
         cuLoaded += step
         var percent = Math.ceil(cuLoaded * 100 / totalLoaded)
         // 当文件读取进度100%时,停留在99,只能说明文件传输成功,
-        if (percent > 100) {
+        if (percent >= 100) {
           percent = 99
         }
         setProgress(percent + '%')
-        globalObj.ws.send(result)
+        globalObj.ws.send(this.result)
       }
     }
     function setModal (type, showT='modal') {
@@ -573,12 +575,12 @@
         return false;
       }
     }
-    function sumCheck (arr, length) {
+    function sumCheck (arr) {
       let total = 0
-      for (let i = 0; i < arr.length; i++) {
+      for (var i = 0; i < arr.length; i++) {
         total += arr[i]
       }
-      return Number(total.toString().slice(arr.length-length))
+      return total % 256
     }
   </script>
 </body>
