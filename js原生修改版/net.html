@@ -78,6 +78,10 @@
       color: #fff;
       border-color: #287fca;
     }
+    .button-group .net-scan {
+      background-color: #3da004;
+      border-color: #3da004;
+    }
     /* 本地升级区域 */
     .choose-file {
       display: inline-block;
@@ -248,6 +252,7 @@
       </form>
       <div class="button-group flex-center">
         <button class="save-btn net-save">保存</button>
+        <button class="save-btn net-scan">扫描WIFI</button>
         <button class="reset-btn netset-btn">重置</button>
       </div>
     </div>
@@ -270,7 +275,7 @@
         <div class="form-item">
           <span class="choose-file">选择文件</span>
           <label for="file" class="file-label">请选择</label>
-          <span class="file-type file-name">只能上传txt/hex文件</span>
+          <span class="file-type file-name">只能上传bin文件</span>
           <input id="file" type="file" style="display: none;">
         </div>
         <div class="form-item">
@@ -303,7 +308,7 @@
     var fileInfo = null;
     var reader = new FileReader();
     var sum = null; // 和校验
-    var step = 512; // 每次读取字节数b
+    var step = 1024; // 每次读取字节数b
     var bagIndex = 1; // 第1包
     var cuLoaded = 0; // 当前已经读取的字节总数
     var totalLoaded = 0; // 当前文件总字节数
@@ -320,13 +325,14 @@
     let $fileName = document.querySelector('.file-name')
     let $save = document.querySelector('.net-save')
     let $netSet = document.querySelector('.netset-btn')
+    let $scan = document.querySelector('.net-scan')
     let $up = document.querySelector('.up-grade')
     let $upSet = document.querySelector('.upset-btn')
     let proLine = document.querySelector('.progress-line')
     if (!globalObj.isConnect) {
-      createSocket(function(data) {
-        wsMessage(data, readBlob)
-      })
+      // createSocket(function(data) {
+      //   wsMessage(data, readBlob)
+      // })
     }
     // 点击配网保存
     $save.onclick = function (e) {
@@ -347,6 +353,13 @@
         password
       }))
     }
+    // 点击扫描wifi
+    $scan.onclick = function () {
+      setModal('show', 'loading')
+      globalObj.ws.send(JSON.stringify({
+        fun: 'netScan'
+      }))
+    }
     // 点击配网重置
     $netSet.onclick = function (e) {
       netDoms.wifi.value = ''
@@ -356,12 +369,12 @@
     $file.onchange = function (e) {
       let file = e.target.files[0]
       let fileName = file.name
-      if (!(fileName.includes('.txt') || fileName.includes('.hex'))) {
+      if (!(fileName.includes('.bin'))) {
         messageTips.error('文件格式不正确, 请重新选择')
         return false
       }
-      if (fileInfo.size  > 1024 * 2) { // 大于2k
-        messageTips.error('文件不能大于2k, 请重新选择')
+      if (fileInfo.size  > 1024 * 128) { // 大于128k
+        messageTips.error('文件不能大于128k, 请重新选择')
         return false
       }
       totalLoaded = file.size
@@ -475,22 +488,14 @@
           upDoms.sn.value = data.result.sn || ''
           upDoms.solf.value = data.result.solf || ''
         }
-        if (data.fun == "upResult") {
-          if (data.result == 0) {
-            console.log('操作失败')
-          } else {
-            // 开始发包
-            callback && callback()
-          }
-        }
         if (data.fun == "upPack") {
-          // 包接受成功继续发送
+          // 可以发包了
           if (data.result < 32768) {
-            if (data.result > 0) { // 服务端返回包的索引,说明可以发送下一包了
+            if (data.result >= 0) { // 服务端返回包的索引,说明可以发送下一包了
               bagIndex = data.result
               callback && callback()
             } else { // 重新发送失败的包
-              cuLoaded = (bagIndex - 1) * step
+              cuLoaded = bagIndex * step
               callback && callback()
             }
           }
