@@ -230,7 +230,7 @@
 <body>
   <div class="message none"></div>
   <div class="modal none">
-    <div class="net-status"><span>The network is connecting . . .</span></div>
+    <div class="net-status"><span>connecting . . .</span></div>
   </div>
   <div class="loading none">
     <div class="loading-flag"></div>
@@ -357,7 +357,7 @@
       if (!password) {
         messageTips.error('Please enter your password')
         return
-      }
+      } 
       setModal('show', 'loading')
       globalObj.ws.send(JSON.stringify({
         fun: 'netSet',
@@ -446,7 +446,7 @@
     }
     function createSocket(onmessage) {
       setModal('show')
-      ws = new WebSocket('ws://192.168.100.1');
+      ws = new WebSocket('ws://10.10.10.1');
       globalObj.ws = ws
       ws.onopen = function() {
         setModal('hidden')
@@ -462,10 +462,14 @@
       }
       ws.onclose = function() {
         setModal('hidden')
+        setModal('hidden', 'loading')
         globalObj.isConnect = false
+        this.close()
       }
       ws.onerror = function() {
         setModal('hidden')
+        setModal('hidden', 'loading')
+        this.close()
         globalObj.isConnect = false
         messageTips.error('Network connection failure')
       }
@@ -519,6 +523,9 @@
           if (data.result == 65535) {
             setModal('hidden', 'loading')
             setProgress('0%')
+            cuLoaded = 0
+            totalLoaded = 0
+            bagIndex = 1
             messageTips.error('Upgrade failed. Please upgrade again!')
           }
         }
@@ -528,10 +535,10 @@
       if (cuLoaded > totalLoaded) { // 文件传输完毕
         return
       }
-      let temp = fileInfo.slice(cuLoaded, cuLoaded + step)
+      let temp = blobSlice(fileInfo, cuLoaded, cuLoaded + step)
       reader.readAsArrayBuffer(temp)
       // 文件读取成功
-      reader.onload = function () {
+      reader.onload = function (e) {
         cuLoaded += step
         var percent = Math.ceil(cuLoaded * 100 / totalLoaded)
         // 当文件读取进度100%时,停留在99,只能说明文件传输成功,
@@ -596,11 +603,11 @@
       let seconds = sec
       let timer = null
       setModal('show', 'waiting')
-      $waitTxt.innerText = 'Updating...... Please wait' + seconds + 'S'
+      $waitTxt.innerText = 'Updating... Please wait ' + seconds + 'S'
       timer = setInterval(() => {
         seconds--
         let temp = seconds < 10 && seconds > 0 ? '0' + seconds : seconds
-        $waitTxt.innerText = 'Updating...... Please wait' + temp + 'S'
+        $waitTxt.innerText = 'Updating... Please wait ' + temp + 'S'
         if (seconds <= 0) {
           clearInterval(timer)
           timer = null
@@ -609,6 +616,20 @@
         }
       }, 1000)
     }
+    function blobSlice (blob,startByte,endByte) {
+      if (blob.slice){
+        return  blob.slice(startByte,endByte);
+      }
+      // 兼容firefox
+      if(blob.mozSlice){
+        return  blob.mozSlice(startByte,endByte);
+      }
+      // 兼容webkit
+      if(blob.webkitSlice){
+        return  blob.webkitSlice(startByte,endByte);
+      }
+        return null;
+      }
   </script>
 </body>
 </html>
