@@ -34,6 +34,7 @@
       margin-bottom: 10px;
       color: rgb(218, 99, 20);
       font-weight: bold;
+      overflow: hidden;
     }
     label {
       display: inline-block;
@@ -234,6 +235,14 @@
       font-size: 16px;
       color: red;
     }
+    .fl {
+      float: left;
+    }
+    .fr {
+      float: right;
+      color: #287FCA;
+      font-size: ;
+    }
   </style>
 </head>
 <body>
@@ -248,11 +257,10 @@
     <div class="waiting-flag"></div>
   </div>
   <div class="block-area">
-    <div class="limitTips contanier">Tips：Please use Chrome、Edge or Safari to avoid unknown errors</div>
     <div class="content">
       <!-- 配网区域 -->
       <div class="net-set contanier">
-        <div class="title p10">Set-up net</div>
+        <div class="title p10"><span class="fl">Set-up net</span><span class="fr">FoxESS</span></div>
         <form>
           <div class="form-item">
             <label for="ip">IP</label>
@@ -275,13 +283,13 @@
         </form>
         <div class="button-group flex-center">
           <button class="save-btn net-save">Save</button>
-          <button class="save-btn net-scan">Scan WIFI</button>
+          <button class="save-btn net-scan">Refresh</button>
           <button class="reset-btn netset-btn">Clear</button>
         </div>
       </div>
       <!-- 本地升级区域 -->
       <div class="local-upgrade contanier">
-        <div class="title p10">Local upgrade</div>
+        <div class="title p10"><span class="fl">Local upgrade</span><span class="fr">FoxESS</span></div>
         <form action="">
           <div class="form-item">
             <label for="sn">SN</label>
@@ -317,9 +325,6 @@
   </div>
   <script>
     (function (window) {
-    // 获取浏览器类型
-    let isSupport = getBrowerType()
-    if (isSupport) return
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -416,6 +421,12 @@
     }
     // 点击升级按钮
     $up.onclick = function (e) {
+      // 获取浏览器类型
+      let isSupport = getBrowerType()
+      if (isSupport) {
+        messageTips.error('Please use Chrome、Edge or Safari to avoid unknown errors!')
+        return
+      }
       if (!globalObj.isConnect) {
         messageTips.error('The network is not connected!')
         return false
@@ -467,7 +478,6 @@
         globalObj.isConnect = true
       }
       ws.onmessage = function(e) {
-        console.log('接受到服务端发来的数据', e.data)
         // 如果服务端接收成功继续读取
         let data = isJSON(e.data) ? JSON.parse(e.data) : ''
         onmessage && onmessage(data)
@@ -648,7 +658,6 @@
       let brower = navigator.userAgent
       let content = document.querySelector('.content')
       if (brower.indexOf('Firefox') > -1 || brower.indexOf('Trident') > -1) {
-        content.classList.add('none')
         return true
       }
       return false
