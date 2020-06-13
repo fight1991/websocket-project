@@ -226,16 +226,15 @@
       color: green;
     }
     .limitTips {
-      text-align: center;
-      font-size: 20px;
+      text-align: left;
+      font-size: 16px;
       color: red;
-      padding-top: 50vh;
+      /* padding-top: 50vh; */
       font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <div class="limitTips none">your browser can't supports Local upgrade, Please use Chrome、Edge or Safari</div>
   <div class="message none"></div>
   <div class="modal none">
     <div class="net-status"><span>connecting . . .</span></div>
@@ -247,67 +246,70 @@
     <div class="waiting-flag"></div>
   </div>
   <div class="block-area">
-    <!-- 配网区域 -->
-    <div class="net-set contanier">
-      <div class="title p10">Set-up net</div>
-      <form>
-        <div class="form-item">
-          <label for="ip">IP</label>
-          <input id="ip" type="text" name="ip" readonly value="">
-        </div>
-        <div class="form-item">
-          <label for="mac">Mac</label>
-          <input id="mac" type="text" name="mac" readonly value="">
-        </div>
-        <div class="form-item">
-          <label>Wifi SSID</label>
-          <select name="ssId" id="wifi">
-            <option value="">nothing</option>
-          </select>
-        </div>
-        <div class="form-item">
-          <label for="password">Password</label>
-          <input id="password" type="text" name="password" value="">
-        </div>
-      </form>
-      <div class="button-group flex-center">
-        <button class="save-btn net-save">Save</button>
-        <button class="save-btn net-scan">Scan WIFI</button>
-        <button class="reset-btn netset-btn">Clear</button>
-      </div>
-    </div>
-    <!-- 本地升级区域 -->
-    <div class="local-upgrade contanier">
-      <div class="title p10">Local upgrade</div>
-      <form action="">
-        <div class="form-item">
-          <label for="sn">SN</label>
-          <input id="sn" type="text" name="sn" readonly value="">
-        </div>
-        <div class="form-item">
-          <label for="solf">Software version</label>
-          <input id="solf" type="text" name="solf" readonly value="">
-        </div>
-        <div class="form-item">
-          <label for="firm">Hardware version</label>
-          <input id="firm" type="text" name="firm" readonly value="">
-        </div>
-        <div class="form-item">
-          <span class="choose-file">Select File</span>
-          <label for="file" class="file-label">Please select</label>
-          <span class="file-type file-name">Only .bin files can be uploaded</span>
-          <input id="file" type="file" style="display: none;">
-        </div>
-        <div class="form-item">
-          <label></label>
-          <div class="progress-container">
-            <div class="progress-line">0%</div>
+    <div class="limitTips contanier">Tips：Please use Chrome、Edge or Safari to avoid unknown errors</div>
+    <div class="content">
+      <!-- 配网区域 -->
+      <div class="net-set contanier">
+        <div class="title p10">Set-up net</div>
+        <form>
+          <div class="form-item">
+            <label for="ip">IP</label>
+            <input id="ip" type="text" name="ip" readonly value="">
           </div>
+          <div class="form-item">
+            <label for="mac">Mac</label>
+            <input id="mac" type="text" name="mac" readonly value="">
+          </div>
+          <div class="form-item">
+            <label>Wifi SSID</label>
+            <select name="ssId" id="wifi">
+              <option value="">nothing</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label for="password">Password</label>
+            <input id="password" type="text" name="password" value="">
+          </div>
+        </form>
+        <div class="button-group flex-center">
+          <button class="save-btn net-save">Save</button>
+          <button class="save-btn net-scan">Scan WIFI</button>
+          <button class="reset-btn netset-btn">Clear</button>
         </div>
-      </form>
-      <div class="button-group flex-center">
-        <button class="save-btn up-grade">Upgrade</button>
-        <button class="reset-btn upset-btn">Clear</button>
+      </div>
+      <!-- 本地升级区域 -->
+      <div class="local-upgrade contanier">
+        <div class="title p10">Local upgrade</div>
+        <form action="">
+          <div class="form-item">
+            <label for="sn">SN</label>
+            <input id="sn" type="text" name="sn" readonly value="">
+          </div>
+          <div class="form-item">
+            <label for="solf">Software version</label>
+            <input id="solf" type="text" name="solf" readonly value="">
+          </div>
+          <div class="form-item">
+            <label for="firm">Hardware version</label>
+            <input id="firm" type="text" name="firm" readonly value="">
+          </div>
+          <div class="form-item">
+            <span class="choose-file">Select File</span>
+            <label for="file" class="file-label">Please select</label>
+            <span class="file-type file-name">Only .bin files can be uploaded</span>
+            <input id="file" type="file" style="display: none;">
+          </div>
+          <div class="form-item">
+            <label></label>
+            <div class="progress-container">
+              <div class="progress-line">0%</div>
+            </div>
+          </div>
+        </form>
+        <div class="button-group flex-center">
+          <button class="save-btn up-grade">Upgrade</button>
+          <button class="reset-btn upset-btn">Clear</button>
+        </div>
       </div>
     </div>
   </div>
@@ -354,9 +356,9 @@
     let $upSet = document.querySelector('.upset-btn')
     let proLine = document.querySelector('.progress-line')
     if (!globalObj.isConnect) {
-      createSocket(function(data) {
-        wsMessage(data, readBlob)
-      })
+      // createSocket(function(data) {
+      //   wsMessage(data, readBlob)
+      // })
     }
     // 点击配网保存
     $save.onclick = function (e) {
