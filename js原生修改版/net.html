@@ -176,6 +176,10 @@
       transform: translateX(-50%);
       z-index: 66;
     }
+    .message {
+      box-shadow: 0 0 10px #333;
+      background-color: #f5f5f5;
+    }
     .waiting-flag {
       text-align: center;
       color: #fff;
@@ -229,8 +233,6 @@
       text-align: left;
       font-size: 16px;
       color: red;
-      /* padding-top: 50vh; */
-      font-weight: bold;
     }
   </style>
 </head>
@@ -356,9 +358,9 @@
     let $upSet = document.querySelector('.upset-btn')
     let proLine = document.querySelector('.progress-line')
     if (!globalObj.isConnect) {
-      // createSocket(function(data) {
-      //   wsMessage(data, readBlob)
-      // })
+      createSocket(function(data) {
+        wsMessage(data, readBlob)
+      })
     }
     // 点击配网保存
     $save.onclick = function (e) {
@@ -424,13 +426,12 @@
       }
       // 开始升级先发送包文件信息
       let headInfo = {
-        fun: 'upFile', // up 升级
+        fun: 'upFile',
         size: fileInfo.size,
         sum: sum
       }
       globalObj.ws.send(JSON.stringify(headInfo))
-      // 显示进度条效果
-      // 显示loading
+      // 显示进度条效果和loading
       setModal('show', 'loading')
     }
     // 点击升级重置
@@ -440,12 +441,9 @@
       totalLoaded = 0
       proLine.style.width = '25px'
       proLine.innerText = '0%'
+      $fileName.innerText = 'Only .bin files can be uploaded'
     }
-
-
-
-
-
+// *********
     function getDomByIds(id) {
       if (Array.isArray(id)) {
         var objDom = {}
@@ -515,7 +513,6 @@
             setModal('hidden', 'loading')
             if (num == 1) {
               messageTips.success('Distribution success!')
-              waitTime(15)
             } else {
               messageTips.error('Distribution failed!')
             }
@@ -542,7 +539,6 @@
             setModal('hidden', 'loading')
             setProgress('0%')
             cuLoaded = 0
-            totalLoaded = 0
             bagIndex = 1
             messageTips.error('Upgrade failed. Please upgrade again!')
           }
@@ -591,7 +587,7 @@
         $message.innerText = ''
         clearTimeout(timer)
         timer = null
-      }, 2000)
+      }, 3000)
     }
     function isJSON(str) {
       if (typeof str == 'string') {
@@ -650,11 +646,9 @@
     }
     function getBrowerType() {
       let brower = navigator.userAgent
-      let blockArea = document.querySelector('.block-area')
-      let limitTips = document.querySelector('.limitTips')
+      let content = document.querySelector('.content')
       if (brower.indexOf('Firefox') > -1 || brower.indexOf('Trident') > -1) {
-        blockArea.classList.add('none')
-        limitTips.classList.remove('none')
+        content.classList.add('none')
         return true
       }
       return false
