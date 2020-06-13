@@ -509,10 +509,14 @@
         }
         if (data.fun == "netResult") {
           let num = data.result
-          if (num != 0) {
+          if (num > 0) {
             setModal('hidden', 'loading')
-          } else {
-            num == 1 ? messageTips.success('Distribution success!') : messageTips.error('Distribution failed!')
+            if (num == 1) {
+              messageTips.success('Distribution success!')
+              waitTime(15)
+            } else {
+              messageTips.error('Distribution failed!')
+            }
           }
         }
         if (data.fun == "upPack") {
@@ -529,7 +533,7 @@
           if (data.result > 32768 && data.result < 65535) {
             setProgress('100%')
             setModal('hidden', 'loading')
-            // 开启倒计时10s后重新刷新页面
+            // 开启倒计时15s后重新刷新页面
             waitTime(15)
           }
           if (data.result == 65535) {
