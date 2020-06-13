@@ -323,7 +323,7 @@
     </div>
   </div>
   <script>
-    (function (window) {
+    window.onload = function () {
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -661,7 +661,7 @@
       }
       return false
     }
-  })(window)
+  }
   </script>
 </body>
 </html>
