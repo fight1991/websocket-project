@@ -225,9 +225,17 @@
     .success {
       color: green;
     }
+    .limitTips {
+      text-align: center;
+      font-size: 20px;
+      color: red;
+      padding-top: 50vh;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+  <div class="limitTips none">your browser can't supports Local upgrade, Please use Chrome、Edge or Safari</div>
   <div class="message none"></div>
   <div class="modal none">
     <div class="net-status"><span>connecting . . .</span></div>
@@ -304,6 +312,10 @@
     </div>
   </div>
   <script>
+    (function (window) {
+    // 获取浏览器类型
+    let isSupport = getBrowerType()
+    if (isSupport) return
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -617,19 +629,31 @@
       }, 1000)
     }
     function blobSlice (blob,startByte,endByte) {
-      if (blob.slice){
+      if (blob.slice) {
         return  blob.slice(startByte,endByte);
       }
       // 兼容firefox
-      if(blob.mozSlice){
+      if (blob.mozSlice) {
         return  blob.mozSlice(startByte,endByte);
       }
       // 兼容webkit
-      if(blob.webkitSlice){
+      if (blob.webkitSlice) {
         return  blob.webkitSlice(startByte,endByte);
       }
-        return null;
+      return null;
+    }
+    function getBrowerType() {
+      let brower = navigator.userAgent
+      let blockArea = document.querySelector('.block-area')
+      let limitTips = document.querySelector('.limitTips')
+      if (brower.indexOf('Firefox') > -1 || brower.indexOf('Trident') > -1) {
+        blockArea.classList.add('none')
+        limitTips.classList.remove('none')
+        return true
       }
+      return false
+    }
+  })(window)
   </script>
 </body>
 </html>
