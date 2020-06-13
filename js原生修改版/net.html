@@ -400,6 +400,7 @@
     // 点击选择文件
     $file.onchange = function (e) {
       let file = e.target.files[0];
+      if (!file) return;
       let fileName = file.name;
       if (!(fileName.includes('.bin'))) {
         messageTips.error('The file format is incorrect, please select again');
