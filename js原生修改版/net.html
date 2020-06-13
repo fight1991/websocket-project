@@ -306,7 +306,7 @@
             <span class="choose-file">Select File</span>
             <label for="file" class="file-label">Please select</label>
             <span class="file-type file-name">Only .bin files can be uploaded</span>
-            <input id="file" type="file" style="display: none;">
+            <input id="file" type="file" accept="application/octet-stream" style="display: none;">
           </div>
           <div class="form-item">
             <label></label>
@@ -362,9 +362,9 @@
     let $upSet = document.querySelector('.upset-btn');
     let proLine = document.querySelector('.progress-line');
     if (!globalObj.isConnect) {
-      createSocket(function(data) {
-        wsMessage(data, readBlob)
-      })
+      // createSocket(function(data) {
+      //   wsMessage(data, readBlob)
+      // })
     };
     // 点击配网保存
     $save.onclick = function (e) {
