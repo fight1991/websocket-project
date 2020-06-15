@@ -362,9 +362,9 @@
     let $upSet = document.querySelector('.upset-btn');
     let proLine = document.querySelector('.progress-line');
     if (!globalObj.isConnect) {
-      // createSocket(function(data) {
-      //   wsMessage(data, readBlob)
-      // })
+      createSocket(function(data) {
+        wsMessage(data, readBlob) 
+      })
     };
     // 点击配网保存
     $save.onclick = function (e) {
