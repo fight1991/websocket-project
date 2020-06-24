@@ -382,10 +382,6 @@
       if (ws && ws.readyState <= 1) {
         ws.close()
       }
-      if (ws.readyState == 1) {
-        messageTips.error('The network was connected');
-        return
-      }
       createSocket(function(data) {
         wsMessage(data, readBlob) 
       })
@@ -518,6 +514,7 @@
       };
       ws.onerror = function() {
         messageTips.error('Network connection failure');
+        ws.close()
       }
     };
     function wsMessage (data, callback) {
