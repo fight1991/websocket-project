@@ -84,6 +84,18 @@
       background-color: #3da004;
       border-color: #3da004;
     }
+    .button-group>.net-connect {
+      background-color: #2797f3;
+      border-color: #2797f3;
+    }
+    .button-group>.net-connect[disabled] {
+      /* pointer-events: none; */
+      cursor: not-allowed;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+      opacity: .65;
+      background-color: #333;
+    }
     /* 本地升级区域 */
     .choose-file {
       display: inline-block;
@@ -281,6 +293,7 @@
           </div>
         </form>
         <div class="button-group flex-center">
+          <button class="save-btn net-connect">Reconnect</button>
           <button class="save-btn net-save">Save</button>
           <button class="save-btn net-scan">Refresh</button>
           <button class="reset-btn netset-btn">Clear</button>
@@ -324,6 +337,7 @@
   </div>
   <script>
     window.onload = function () {
+    var connectTxt = 'The network is not connected ! Please reconnect'
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -333,10 +347,7 @@
       }
     };
     // 全局变量
-    var globalObj = {
-      ws: null,
-      isConnect: false
-    };
+    var ws = null // readyState 0 正在连接 1 已连接 2 关闭中 3 已关闭
     var fileInfo = null;
     var reader = new FileReader();
     var sum = null; // 和校验
@@ -345,10 +356,9 @@
     var cuLoaded = 0; // 当前已经读取的字节总数
     var totalLoaded = 0; // 当前文件总字节数
     window.onbeforeunload = function () {
-      if (globalObj.ws) {
-        globalObj.ws.close();
-        globalObj.isConnect = false;
-        globalObj.ws = null;
+      if (ws.readyState <= 1) {
+        ws.close();
+        ws = null;
       }
     };
     let netDoms = getDomByIds(['ip', 'mac', 'wifi', 'password']);
@@ -360,16 +370,34 @@
     let $scan = document.querySelector('.net-scan');
     let $up = document.querySelector('.up-grade');
     let $upSet = document.querySelector('.upset-btn');
+    let $connect = document.querySelector('.net-connect')
     let proLine = document.querySelector('.progress-line');
-    if (!globalObj.isConnect) {
+    if (!ws || ws.readyState != 1) {
       createSocket(function(data) {
         wsMessage(data, readBlob) 
       })
     };
+    // 重新连接
+    $connect.onclick = function (e) {
+      if (ws && ws.readyState <= 1) {
+        ws.close()
+      }
+      if (ws.readyState == 1) {
+        messageTips.error('The network was connected');
+        return
+      }
+      createSocket(function(data) {
+        wsMessage(data, readBlob) 
+      })
+    }
     // 点击配网保存
     $save.onclick = function (e) {
       let ssid = netDoms.wifi.value;
       let password = netDoms.password.value;
+      if (ws.readyState != 1) {
+        messageTips.error(connectTxt);
+        return
+      }
       if (!ssid) {
         messageTips.error('Please select a ssId');
         return
@@ -379,7 +407,7 @@
         return
       } 
       setModal('show', 'loading');
-      globalObj.ws.send(JSON.stringify({
+      ws.send(JSON.stringify({
         fun: 'netSet',
         ssid,
         password
@@ -387,8 +415,12 @@
     };
     // 点击扫描wifi
     $scan.onclick = function () {
+      if (ws.readyState != 1) {
+        messageTips.error(connectTxt);
+        return
+      }
       setModal('show', 'loading');
-      globalObj.ws.send(JSON.stringify({
+      ws.send(JSON.stringify({
         fun: 'netScan'
       }))
     };
@@ -427,9 +459,9 @@
         messageTips.error('Please use Chrome、Edge or Safari to avoid unknown errors!');
         return
       }
-      if (!globalObj.isConnect) {
-        messageTips.error('The network is not connected!');
-        return false
+      if (ws.readyState != 1) {
+        messageTips.error(connectTxt);
+        return
       }
       if (!fileInfo) {
         messageTips.error('Please select file!');
@@ -441,7 +473,7 @@
         size: fileInfo.size,
         sum: sum
       };
-      globalObj.ws.send(JSON.stringify(headInfo));
+      ws.send(JSON.stringify(headInfo));
       // 显示进度条效果和loading
       setModal('show', 'loading')
     };
@@ -470,12 +502,10 @@
     function createSocket(onmessage) {
       setModal('show');
       ws = new WebSocket('ws://10.10.10.1');
-      globalObj.ws = ws;
       ws.onopen = function() {
         setModal('hidden');
         setModal('show', 'loading');
         messageTips.success('The network is connected,initializing the page...');
-        globalObj.isConnect = true;
       };
       ws.onmessage = function(e) {
         // 如果服务端接收成功继续读取
@@ -485,14 +515,8 @@
       ws.onclose = function() {
         setModal('hidden');
         setModal('hidden', 'loading');
-        globalObj.isConnect = false;
-        this.close();
       };
       ws.onerror = function() {
-        setModal('hidden');
-        setModal('hidden', 'loading');
-        this.close();
-        globalObj.isConnect = false;
         messageTips.error('Network connection failure');
       }
     };
@@ -570,7 +594,7 @@
           percent = 99
         }
         setProgress(percent + '%');
-        globalObj.ws.send(this.result);
+        ws.send(this.result);
       }
     };
     function setModal (type, showT='modal', txt) {
