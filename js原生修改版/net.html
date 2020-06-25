@@ -337,7 +337,7 @@
   </div>
   <script>
     window.onload = function () {
-    var connectTxt = 'The network is not connected ! Please reconnect'
+    var connectTxt = 'The network is not connected ! Please reconnect';
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -347,7 +347,7 @@
       }
     };
     // 全局变量
-    var ws = null // readyState 0 正在连接 1 已连接 2 关闭中 3 已关闭
+    var ws = null; // readyState 0 正在连接 1 已连接 2 关闭中 3 已关闭
     var fileInfo = null;
     var reader = new FileReader();
     var sum = null; // 和校验
@@ -370,7 +370,7 @@
     let $scan = document.querySelector('.net-scan');
     let $up = document.querySelector('.up-grade');
     let $upSet = document.querySelector('.upset-btn');
-    let $connect = document.querySelector('.net-connect')
+    let $connect = document.querySelector('.net-connect');
     let proLine = document.querySelector('.progress-line');
     if (!ws || ws.readyState != 1) {
       createSocket(function(data) {
@@ -384,8 +384,8 @@
       }
       createSocket(function(data) {
         wsMessage(data, readBlob) 
-      })
-    }
+      });
+    };
     // 点击配网保存
     $save.onclick = function (e) {
       let ssid = netDoms.wifi.value;
