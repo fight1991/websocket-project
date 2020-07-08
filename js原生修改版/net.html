@@ -361,6 +361,7 @@
           //发送测试信息，后端收到后，返回一个消息，
           ws.send('heart');
           self.serverTimeoutObj = setTimeout(function () {
+            messageTips.error('Time out')
             ws.readyState <= 1 && ws.close();
           }, self.timeout);
         }, self.heartTime)
