@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='icon' href='data:;base64,='>
   <title>net</title>
   <style>
     html,body {
@@ -96,7 +97,6 @@
       opacity: .65;
       background-color: #333;
     }
-    /* 本地升级区域 */
     .choose-file {
       display: inline-block;
       width: 100px;
@@ -269,7 +269,6 @@
   </div>
   <div class="block-area">
     <div class="content">
-      <!-- 配网区域 -->
       <div class="net-set contanier">
         <div class="title p10"><span class="fl">Set-up net</span><span class="fr">FoxESS</span></div>
         <form>
@@ -293,13 +292,12 @@
           </div>
         </form>
         <div class="button-group flex-center">
-          <button class="save-btn net-connect">Reconnect</button>
+          <!-- <button class="save-btn net-connect">Reconnect</button> -->
           <button class="save-btn net-save">Save</button>
           <button class="save-btn net-scan">Refresh</button>
           <button class="reset-btn netset-btn">Clear</button>
         </div>
       </div>
-      <!-- 本地升级区域 -->
       <div class="local-upgrade contanier">
         <div class="title p10"><span class="fl">Local upgrade</span><span class="fr">FoxESS</span></div>
         <form action="">
@@ -348,6 +346,27 @@
     };
     // 全局变量
     var ws = null; // readyState 0 正在连接 1 已连接 2 关闭中 3 已关闭
+    var socketUrl = 'ws://10.10.10.1/';
+    var lockReconnect = false;//避免重复连接
+    //心跳检测
+    var heartCheck = {
+      timeout: 20000,// 超时
+      heartTime: 5000,
+      timeoutObj: null,
+      serverTimeoutObj: null,
+      start: function () {
+        var self = this;
+        this.timeoutObj && clearTimeout(this.timeoutObj);
+        this.serverTimeoutObj && clearTimeout(this.serverTimeoutObj);
+        this.timeoutObj = setTimeout(function () {
+          //发送测试信息，后端收到后，返回一个消息，
+          ws.send('heart');
+          self.serverTimeoutObj = setTimeout(function () {
+            ws.readyState <= 1 && ws.close();
+          }, self.timeout);
+        }, self.heartTime)
+      }
+    };
     var fileInfo = null;
     var reader = new FileReader();
     var sum = null; // 和校验
@@ -370,22 +389,19 @@
     let $scan = document.querySelector('.net-scan');
     let $up = document.querySelector('.up-grade');
     let $upSet = document.querySelector('.upset-btn');
-    let $connect = document.querySelector('.net-connect');
     let proLine = document.querySelector('.progress-line');
     if (!ws || ws.readyState != 1) {
-      createSocket(function(data) {
-        wsMessage(data, readBlob) 
-      })
+      createSocket()
     };
     // 重新连接
-    $connect.onclick = function (e) {
-      if (ws && ws.readyState <= 1) {
-        ws.close()
-      }
-      createSocket(function(data) {
-        wsMessage(data, readBlob) 
-      });
-    };
+    // $connect.onclick = function (e) {
+    //   if (ws && ws.readyState <= 1) {
+    //     ws.close()
+    //   }
+    //   createSocket(function(data) {
+    //     wsMessage(data, readBlob) 
+    //   })
+    // }
     // 点击配网保存
     $save.onclick = function (e) {
       let ssid = netDoms.wifi.value;
@@ -434,8 +450,8 @@
         messageTips.error('The file format is incorrect, please select again');
         return false
       };
-      if (file.size  > 1024 * 128) { // 大于128k
-        messageTips.error('The file cannot be greater than 128K, please select again');
+      if (file.size  > 1024 * 76) { // 大于128k
+        messageTips.error('The file cannot be greater than 76K, please select again');
         return false
       };
       totalLoaded = file.size;
@@ -452,7 +468,7 @@
       // 获取浏览器类型
       let isSupport = getBrowerType();
       if (isSupport) {
-        messageTips.error('Please use Chrome、Edge or Safari to avoid unknown errors!');
+        messageTips.error('Please use Chrome,Edge or Safari to avoid unknown errors!');
         return
       }
       if (ws.readyState != 1) {
@@ -495,28 +511,54 @@
         return document.querySelector('#'+ id)
       }
     };
-    function createSocket(onmessage) {
+    function createSocket() {
       setModal('show');
-      ws = new WebSocket('ws://10.10.10.1');
+      try {
+        ws = new WebSocket(socketUrl);
+        initSocket(function(data) {
+          wsMessage(data, readBlob) 
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    };
+    function initSocket(onmessage) {
       ws.onopen = function() {
         setModal('hidden');
         setModal('show', 'loading');
         messageTips.success('The network is connected,initializing the page...');
+        //心跳检测重置
+	      heartCheck.start();
       };
       ws.onmessage = function(e) {
         // 如果服务端接收成功继续读取
         let data = isJSON(e.data) ? JSON.parse(e.data) : '';
-        onmessage && onmessage(data)
+        onmessage && onmessage(data);
+        heartCheck.start();
       };
       ws.onclose = function() {
         setModal('hidden');
         setModal('hidden', 'loading');
+        cuLoaded > 0 && initUpgrade();
+        websocketReconnect(socketUrl);
       };
       ws.onerror = function() {
         messageTips.error('Network connection failure');
         ws.close()
       }
     };
+    function websocketReconnect(url) {
+      if (lockReconnect) {  // 是否已经执行重连
+          return;
+        };
+        lockReconnect = true;
+        //没连接上会一直重连，设置延迟避免请求过多
+        tt && clearTimeout(tt);
+        var tt = setTimeout(function () {
+          createSocket();
+          lockReconnect = false;
+        }, 5000);
+      };
     function wsMessage (data, callback) {
       if (data) {
         if (data.fun == "netInit") {
@@ -543,9 +585,9 @@
           if (num > 0) {
             setModal('hidden', 'loading');
             if (num == 1) {
-              messageTips.success('Distribution success!')
+              messageTips.success('Distribution success!');
             } else {
-              messageTips.error('Distribution failed!')
+              messageTips.error('Distribution failed!');
             }
           }
         }
@@ -567,10 +609,7 @@
             waitTime(15);
           }
           if (data.result == 65535) {
-            setModal('hidden', 'loading');
-            setProgress('0%');
-            cuLoaded = 0;
-            bagIndex = 1;
+            initUpgrade()
             messageTips.error('Upgrade failed. Please upgrade again!')
           }
         }
@@ -593,6 +632,11 @@
         setProgress(percent + '%');
         ws.send(this.result);
       }
+    };
+    function initUpgrade () {
+      setProgress('0%');
+      cuLoaded = 0;
+      bagIndex = 1;
     };
     function setModal (type, showT='modal', txt) {
       $modal = document.querySelector('.'+showT);
