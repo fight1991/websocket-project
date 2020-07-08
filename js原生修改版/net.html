@@ -259,7 +259,7 @@
 <body>
   <div class="message none"></div>
   <div class="modal none">
-    <div class="net-status"><span>connecting . . .</span></div>
+    <div class="net-status"><span>Connecting . . .</span></div>
   </div>
   <div class="loading none">
     <div class="loading-flag"></div>
@@ -292,7 +292,6 @@
           </div>
         </form>
         <div class="button-group flex-center">
-          <!-- <button class="save-btn net-connect">Reconnect</button> -->
           <button class="save-btn net-save">Save</button>
           <button class="save-btn net-scan">Refresh</button>
           <button class="reset-btn netset-btn">Clear</button>
@@ -393,15 +392,6 @@
     if (!ws || ws.readyState != 1) {
       createSocket()
     };
-    // 重新连接
-    // $connect.onclick = function (e) {
-    //   if (ws && ws.readyState <= 1) {
-    //     ws.close()
-    //   }
-    //   createSocket(function(data) {
-    //     wsMessage(data, readBlob) 
-    //   })
-    // }
     // 点击配网保存
     $save.onclick = function (e) {
       let ssid = netDoms.wifi.value;
@@ -447,11 +437,11 @@
       if (!file) return;
       let fileName = file.name;
       if (!(fileName.includes('.bin'))) {
-        messageTips.error('The file format is incorrect, please select again');
+        messageTips.error('The type of file is invalid, please select again');
         return false
       };
-      if (file.size  > 1024 * 76) { // 大于128k
-        messageTips.error('The file cannot be greater than 76K, please select again');
+      if (file.size  > 1024 * 128) { // 大于128k
+        messageTips.error('The file cannot be greater than 128K, please select again');
         return false
       };
       totalLoaded = file.size;
@@ -515,18 +505,18 @@
       setModal('show');
       try {
         ws = new WebSocket(socketUrl);
+        console.log('连接网络中');
         initSocket(function(data) {
           wsMessage(data, readBlob) 
         })
-      } catch (error) {
-        console.log(error)
-      }
+      } catch (err) {}
     };
     function initSocket(onmessage) {
       ws.onopen = function() {
         setModal('hidden');
         setModal('show', 'loading');
-        messageTips.success('The network is connected,initializing the page...');
+        messageTips.success('Initializing the page...');
+        console.log('连接成功');
         //心跳检测重置
 	      heartCheck.start();
       };
@@ -537,14 +527,14 @@
         heartCheck.start();
       };
       ws.onclose = function() {
-        setModal('hidden');
         setModal('hidden', 'loading');
         cuLoaded > 0 && initUpgrade();
         websocketReconnect(socketUrl);
       };
       ws.onerror = function() {
-        messageTips.error('Network connection failure');
-        ws.close()
+        // messageTips.error('Network connection failure');
+        console.log('连接失败');
+        ws.close();
       }
     };
     function websocketReconnect(url) {
@@ -585,9 +575,9 @@
           if (num > 0) {
             setModal('hidden', 'loading');
             if (num == 1) {
-              messageTips.success('Distribution success!');
+              messageTips.success('Success!');
             } else {
-              messageTips.error('Distribution failed!');
+              messageTips.error('Failed!');
             }
           }
         }
@@ -609,8 +599,8 @@
             waitTime(15);
           }
           if (data.result == 65535) {
-            initUpgrade()
-            messageTips.error('Upgrade failed. Please upgrade again!')
+            initUpgrade();
+            messageTips.error('Failed, try again!')
           }
         }
       }
