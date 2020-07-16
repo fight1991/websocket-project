@@ -270,7 +270,7 @@
   <div class="block-area">
     <div class="content">
       <div class="net-set contanier">
-        <div class="title p10"><span class="fl">Set-up net</span><span class="fr">FoxESS</span></div>
+        <div class="title p10"><span class="fl">Set-up net</span><span class="fr"></span></div>
         <form>
           <div class="form-item">
             <label for="ip">IP</label>
@@ -288,7 +288,13 @@
           </div>
           <div class="form-item">
             <label for="password">Password</label>
-            <input id="password" type="text" name="password" value="">
+            <input
+              id="password"
+              maxlength="32"
+              placeholder=" Composed of letters,numbers or underscores"
+              type="text"
+              name="password"
+              value="">
           </div>
         </form>
         <div class="button-group flex-center">
@@ -298,7 +304,7 @@
         </div>
       </div>
       <div class="local-upgrade contanier">
-        <div class="title p10"><span class="fl">Local upgrade</span><span class="fr">FoxESS</span></div>
+        <div class="title p10"><span class="fl">Local upgrade</span><span class="fr"></span></div>
         <form action="">
           <div class="form-item">
             <label for="sn">SN</label>
@@ -361,7 +367,7 @@
           //发送测试信息，后端收到后，返回一个消息，
           ws.send('heart');
           self.serverTimeoutObj = setTimeout(function () {
-            messageTips.error('Time out')
+            messageTips.error('Time out');
             ws.readyState <= 1 && ws.close();
           }, self.timeout);
         }, self.heartTime)
@@ -408,7 +414,12 @@
       if (!password) {
         messageTips.error('Please enter your password');
         return
-      } 
+      }
+      let reg = /^[0-9a-zA-Z_]{0,32}$/;
+      if (!reg.test(password)) {
+        messageTips.error('Password is invalid');
+        return
+      }
       setModal('show', 'loading');
       ws.send(JSON.stringify({
         fun: 'netSet',
@@ -441,8 +452,8 @@
         messageTips.error('The type of file is invalid, please select again');
         return false
       };
-      if (file.size  > 1024 * 128) { // 大于128k
-        messageTips.error('The file cannot be greater than 128K, please select again');
+      if (file.size  > 1024 * 76) { // 大于76k
+        messageTips.error('The file cannot be greater than 76K, please select again');
         return false
       };
       totalLoaded = file.size;
