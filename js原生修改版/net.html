@@ -290,8 +290,6 @@
             <label for="password">Password</label>
             <input
               id="password"
-              maxlength="32"
-              placeholder=" Composed of letters,numbers or underscores"
               type="text"
               name="password"
               value="">
@@ -413,11 +411,6 @@
       }
       if (!password) {
         messageTips.error('Please enter your password');
-        return
-      }
-      let reg = /^[0-9a-zA-Z_]{0,32}$/;
-      if (!reg.test(password)) {
-        messageTips.error('Password is invalid');
         return
       }
       setModal('show', 'loading');
