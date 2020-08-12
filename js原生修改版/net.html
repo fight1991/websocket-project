@@ -565,7 +565,7 @@
             let tempList = [...new Set(data.result.ssid)];
             var str = '';
             tempList.forEach(v => {
-              str += `<option value=\"${v}\">${v}</option>`
+              str += `<option value="${v}">${v}</option>`
             });
             netDoms.wifi.innerHTML = str;
           }
