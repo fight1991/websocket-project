@@ -259,7 +259,7 @@
 <body>
   <div class="message none"></div>
   <div class="modal none">
-    <div class="net-status"><span>Connecting . . .</span></div>
+    <div class="net-status"><span class="dom_connect"></span></div>
   </div>
   <div class="loading none">
     <div class="loading-flag"></div>
@@ -270,7 +270,7 @@
   <div class="block-area">
     <div class="content">
       <div class="net-set contanier">
-        <div class="title p10"><span class="fl">Set-up net</span><span class="fr"></span></div>
+        <div class="title p10"><span class="fl dom_setNet"></span><span class="fr"></span></div>
         <form>
           <div class="form-item">
             <label for="ip">IP</label>
@@ -283,11 +283,11 @@
           <div class="form-item">
             <label>Wifi SSID</label>
             <select name="ssId" id="wifi">
-              <option value="">nothing</option>
+              <option class="dom_empty" value=""></option>
             </select>
           </div>
           <div class="form-item">
-            <label for="password">Password</label>
+            <label for="password" class="dom_pw"></label>
             <input
               id="password"
               type="text"
@@ -296,30 +296,30 @@
           </div>
         </form>
         <div class="button-group flex-center">
-          <button class="save-btn net-save">Save</button>
-          <button class="save-btn net-scan">Refresh</button>
-          <button class="reset-btn netset-btn">Clear</button>
+          <button class="save-btn net-save dom_save"></button>
+          <button class="save-btn net-scan dom_refresh"></button>
+          <button class="reset-btn netset-btn dom_clear1"></button>
         </div>
       </div>
       <div class="local-upgrade contanier">
-        <div class="title p10"><span class="fl">Local upgrade</span><span class="fr"></span></div>
+        <div class="title p10"><span class="fl dom_gradeT"></span><span class="fr"></span></div>
         <form action="">
           <div class="form-item">
             <label for="sn">SN</label>
             <input id="sn" type="text" name="sn" readonly value="">
           </div>
           <div class="form-item">
-            <label for="solf">Software version</label>
+            <label for="solf" class="dom_solf"></label>
             <input id="solf" type="text" name="solf" readonly value="">
           </div>
           <div class="form-item">
-            <label for="firm">Hardware version</label>
+            <label for="firm" class="dom_firm"></label>
             <input id="firm" type="text" name="firm" readonly value="">
           </div>
           <div class="form-item">
-            <span class="choose-file">Select File</span>
-            <label for="file" class="file-label">Please select</label>
-            <span class="file-type file-name">Only .bin files can be uploaded</span>
+            <span class="choose-file dom_selectF"></span>
+            <label for="file" class="file-label dom_selectP"></label>
+            <span class="file-type file-name dom_selectT"></span>
             <input id="file" type="file" accept="application/octet-stream" style="display: none;">
           </div>
           <div class="form-item">
@@ -330,15 +330,25 @@
           </div>
         </form>
         <div class="button-group flex-center">
-          <button class="save-btn up-grade">Upgrade</button>
-          <button class="reset-btn upset-btn">Clear</button>
+          <button class="save-btn up-grade dom_gradeB"></button>
+          <button class="reset-btn upset-btn dom_clear2"></button>
         </div>
       </div>
     </div>
   </div>
   <script>
     window.onload = function () {
-    var connectTxt = 'The network is not connected ! Please reconnect';
+    let langsType = 'zh';
+    if (location.pathname && location.pathname.indexOf('cn') > -1) {
+      langsType = 'zh';
+    };
+    let langsDic = tranlateLangs(langsType);
+    for(var key in langsDic) {
+      if (key.indexOf('dom_') > -1) {
+        let tempDom = document.querySelector('.' + key);
+        tempDom.innerHTML = langsDic[key];
+      }
+    };
     var messageTips = {
       error: function (text) {
         Tips(text, 'error')
@@ -365,7 +375,7 @@
           //发送测试信息，后端收到后，返回一个消息，
           ws.send('heart');
           self.serverTimeoutObj = setTimeout(function () {
-            messageTips.error('Time out');
+            messageTips.error(langsDic.txt_timeout);
             ws.readyState <= 1 && ws.close();
           }, self.timeout);
         }, self.heartTime)
@@ -402,15 +412,15 @@
       let ssid = netDoms.wifi.value;
       let password = netDoms.password.value;
       if (ws.readyState != 1) {
-        messageTips.error(connectTxt);
+        messageTips.error(langsDic.txt_conTxt);
         return
       }
       if (!ssid) {
-        messageTips.error('Please select a ssId');
+        messageTips.error(langsDic.txt_ssId);
         return
       }
       if (!password) {
-        messageTips.error('Please enter your password');
+        messageTips.error(langsDic.txt_pw);
         return
       }
       setModal('show', 'loading');
@@ -423,7 +433,7 @@
     // 点击扫描wifi
     $scan.onclick = function () {
       if (ws.readyState != 1) {
-        messageTips.error(connectTxt);
+        messageTips.error(langsDic.txt_conTxt);
         return
       }
       setModal('show', 'loading');
@@ -442,11 +452,11 @@
       if (!file) return;
       let fileName = file.name;
       if (!(fileName.includes('.bin'))) {
-        messageTips.error('The type of file is invalid, please select again');
+        messageTips.error(langsDic.txt_ft);
         return false
       };
       if (file.size  > 1024 * 76) { // 大于76k
-        messageTips.error('The file cannot be greater than 76K, please select again');
+        messageTips.error(langsDic.txt_sz);
         return false
       };
       totalLoaded = file.size;
@@ -463,15 +473,15 @@
       // 获取浏览器类型
       let isSupport = getBrowerType();
       if (isSupport) {
-        messageTips.error('Please use Chrome,Edge or Safari to avoid unknown errors!');
+        messageTips.error(langsDic.txt_br);
         return
       }
       if (ws.readyState != 1) {
-        messageTips.error(connectTxt);
+        messageTips.error(langsDic.txt_conTxt);
         return
       }
       if (!fileInfo) {
-        messageTips.error('Please select file!');
+        messageTips.error(langsDic.txt_file);
         return false
       }
       // 开始升级先发送包文件信息
@@ -491,7 +501,7 @@
       totalLoaded = 0;
       proLine.style.width = '25px';
       proLine.innerText = '0%';
-      $fileName.innerText = 'Only .bin files can be uploaded';
+      $fileName.innerText = langsDic.dom_selectT;
     };
 // *********
     function getDomByIds(id) {
@@ -510,7 +520,7 @@
       setModal('show');
       try {
         ws = new WebSocket(socketUrl);
-        console.log('连接网络中');
+        console.log('net is connecting');
         initSocket(function(data) {
           wsMessage(data, readBlob) 
         })
@@ -520,8 +530,8 @@
       ws.onopen = function() {
         setModal('hidden');
         setModal('show', 'loading');
-        messageTips.success('Initializing the page...');
-        console.log('连接成功');
+        messageTips.success(langsDic.txt_init);
+        console.log('connect success');
         //心跳检测重置
 	      heartCheck.start();
       };
@@ -537,8 +547,7 @@
         websocketReconnect(socketUrl);
       };
       ws.onerror = function() {
-        // messageTips.error('Network connection failure');
-        console.log('连接失败');
+        console.log('connect failure');
         ws.close();
       }
     };
@@ -605,7 +614,7 @@
           }
           if (data.result == 65535) {
             initUpgrade();
-            messageTips.error('Failed, try again!')
+            messageTips.error(langsDic.txt_fail)
           }
         }
       }
@@ -687,11 +696,11 @@
       let seconds = sec;
       let timer = null;
       setModal('show', 'waiting');
-      $waitTxt.innerText = 'Updating... Please wait ' + seconds + 'S';
+      $waitTxt.innerText = langsDic.txt_wait + seconds + 'S';
       timer = setInterval(() => {
         seconds--;
         let temp = seconds < 10 && seconds > 0 ? '0' + seconds : seconds;
-        $waitTxt.innerText = 'Updating... Please wait ' + temp + 'S';
+        $waitTxt.innerText = langsDic.txt_wait + temp + 'S';
         if (seconds <= 0) {
           clearInterval(timer);
           timer = null;
@@ -721,6 +730,75 @@
         return true
       }
       return false
+    };
+    function tranlateLangs (type = 'en') {
+      let langs = {
+        zh: {
+          // dom字段开始
+          dom_connect: '网络连接中 . . .',
+          dom_setNet: '配网',
+          dom_empty: '无',
+          dom_pw: '密码',
+          dom_save: '保存',
+          dom_refresh: '刷新',
+          dom_clear1: '重置',
+          dom_gradeT: '本地升级',
+          dom_solf: '软件版本',
+          dom_firm: '硬件版本',
+          dom_selectF: '选择文件',
+          dom_selectP: '请选择',
+          dom_selectT: '只能上传.bin文件',
+          dom_gradeB: '升级',
+          dom_clear2: '重置',
+          // dom字段结束
+          // tips字段开始
+          txt_conTxt: '网络未连接！请重新连接',
+          txt_fail: '失败',
+          txt_success: '成功',
+          txt_timeout: '超时',
+          txt_ssId: '请选择SSID!',
+          txt_pw: '请输入密码!',
+          txt_ft: '文件类型错误, 请重新选择!',
+          txt_sz: '文件大小不能超过76K!',
+          txt_br: '请选择Chrome,Edge,Safari浏览器，避免未知错误!',
+          txt_file: '请选择文件!',
+          txt_init: '初始化页面...',
+          txt_wait: '升级中... 请等待 '
+        },
+        en: {
+          // dom字段开始
+          dom_connect: 'Connecting . . .',
+          dom_setNet: 'Set-up net',
+          dom_empty: 'nothing',
+          dom_pw: 'Password',
+          dom_save: 'Save',
+          dom_refresh: 'Refresh',
+          dom_clear1: 'Clear',
+          dom_gradeT: 'Local upgrade',
+          dom_solf: 'Software version',
+          dom_firm: 'Hardware version',
+          dom_selectF: 'Select File',
+          dom_selectP: 'Please select',
+          dom_selectT: 'Only .bin files can be uploaded',
+          dom_gradeB: 'Upgrade',
+          dom_clear2: 'Clear',
+          // dom字段结束
+          // tips字段开始
+          txt_conTxt: 'The network is not connected ! Please reconnect',
+          txt_fail: 'Failure',
+          txt_success: 'Successful',
+          txt_timeout: 'Time out!',
+          txt_ssId: 'Please select a ssId !',
+          txt_pw: 'Please enter your password !',
+          txt_ft: 'The type of file is invalid, please select again !',
+          txt_sz: 'The file cannot be greater than 76K, please select again !',
+          txt_br: 'Please use Chrome,Edge or Safari to avoid unknown errors !',
+          txt_file: 'Please select file!',
+          txt_init: 'Initializing the page...',
+          txt_wait: 'Updating... Please wait'
+        }
+      }
+      return langs[type]
     }
   }
   </script>
