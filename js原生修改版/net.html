@@ -338,7 +338,7 @@
   </div>
   <script>
     window.onload = function () {
-    let langsType = 'zh';
+    let langsType = 'en';
     if (location.pathname && location.pathname.indexOf('cn') > -1) {
       langsType = 'zh';
     };
@@ -361,6 +361,7 @@
     var ws = null; // readyState 0 正在连接 1 已连接 2 关闭中 3 已关闭
     var socketUrl = 'ws://10.10.10.1/';
     var lockReconnect = false;//避免重复连接
+    var ssIdArr = []; // 存储ssid, 防止有特殊字符
     //心跳检测
     var heartCheck = {
       timeout: 20000,// 超时
@@ -409,7 +410,8 @@
     };
     // 点击配网保存
     $save.onclick = function (e) {
-      let ssid = netDoms.wifi.value;
+      let ssidIndex = netDoms.wifi.value;
+      let ssid = ssIdArr[ssidIndex];
       let password = netDoms.password.value;
       if (ws.readyState != 1) {
         messageTips.error(langsDic.txt_conTxt);
@@ -572,9 +574,10 @@
           // netDoms.net.value = data.result.net || ''
           if (data.result.ssid && data.result.ssid.length > 0) {
             let tempList = [...new Set(data.result.ssid)];
+            ssIdArr = tempList;
             var str = '';
-            tempList.forEach(v => {
-              str += `<option value="${v}">${v}</option>`
+            tempList.forEach((v, i) => {
+              str += `<option value="${i}">${v}</option>`
             });
             netDoms.wifi.innerHTML = str;
           }
@@ -681,6 +684,7 @@
           return false;
         }
       } else {
+        console.log('data is not json')
         return false;
       }
     };
